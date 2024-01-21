@@ -1,7 +1,7 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.sql.Array;
+import java.util.*;
 
 
 /**
@@ -54,9 +54,41 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        ChessMove move1 = new ChessMove( new ChessPosition(1,1), new ChessPosition(5,2),PieceType.PAWN);
-        Collection<ChessMove> output = new ArrayList<ChessMove>();
-        output.add(move1);
-        return output;
+        Collection<ChessMove> moveList = new ArrayList<ChessMove>();
+        PieceType currentType = board.getPiece(myPosition).getPieceType();
+
+        //Piece is a BISHOP
+        if(currentType.equals(PieceType.BISHOP)){
+            //Loop through all squares and find valid moves regardless of other pieces
+            for(int curRow = 1; curRow <= 8; curRow++){
+                for(int curCol = 1; curCol <=8; curCol++){
+                   if(curCol == myPosition.getColumn() && curRow == myPosition.getRow()){
+                       continue;
+                   }
+                   if(((myPosition.getRow() - curRow) == (myPosition.getColumn() - curCol)) || ((myPosition.getRow() -curRow) == -(myPosition.getColumn() - curCol))){
+                       ChessPosition currentPosition = new ChessPosition(curRow,curCol);
+                       ChessMove possibleMove = new ChessMove(myPosition, currentPosition, null);
+                       moveList.add(possibleMove);
+                   }
+                }
+            }
+        }
+        return moveList;
+    }
+
+    @Override
+    public String toString(){
+        return this.type.name();
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
     }
 }
