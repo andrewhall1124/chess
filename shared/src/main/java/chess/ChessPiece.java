@@ -12,8 +12,8 @@ import java.util.*;
  */
 public class ChessPiece {
 
-    private ChessGame.TeamColor pieceColor;
-    private ChessPiece.PieceType type;
+    private final ChessGame.TeamColor pieceColor;
+    private final ChessPiece.PieceType type;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
@@ -59,17 +59,56 @@ public class ChessPiece {
 
         //Piece is a BISHOP
         if(currentType.equals(PieceType.BISHOP)){
-            //Loop through all squares and find valid moves regardless of other pieces
-            for(int curRow = 1; curRow <= 8; curRow++){
-                for(int curCol = 1; curCol <=8; curCol++){
-                   if(curCol == myPosition.getColumn() && curRow == myPosition.getRow()){
-                       continue;
-                   }
-                   if(((myPosition.getRow() - curRow) == (myPosition.getColumn() - curCol)) || ((myPosition.getRow() -curRow) == -(myPosition.getColumn() - curCol))){
-                       ChessPosition currentPosition = new ChessPosition(curRow,curCol);
-                       ChessMove possibleMove = new ChessMove(myPosition, currentPosition, null);
-                       moveList.add(possibleMove);
-                   }
+            //Up + Right
+            ChessPosition currentPosition = new ChessPosition(myPosition.getRow() + 1,myPosition.getColumn() + 1);
+            while(board.getPiece(currentPosition) == null){
+                int curRow = currentPosition.getRow();
+                int curCol = currentPosition.getColumn();
+                ChessMove possibleMove = new ChessMove(myPosition,currentPosition,null);
+                moveList.add(possibleMove);
+                if(curRow < 8 && curCol < 8){
+                    currentPosition = new ChessPosition(curRow + 1, curCol + 1);
+                } else{
+                    break; //Hit the edge of the board
+                }
+            }
+            //Down + Right
+            currentPosition = new ChessPosition(myPosition.getRow() - 1,myPosition.getColumn() + 1);
+            while(board.getPiece(currentPosition) == null){
+                int curRow = currentPosition.getRow();
+                int curCol = currentPosition.getColumn();
+                ChessMove possibleMove = new ChessMove(myPosition,currentPosition,null);
+                moveList.add(possibleMove);
+                if(curRow > 1 && curCol < 8){
+                    currentPosition = new ChessPosition(curRow - 1, curCol + 1);
+                } else{
+                    break; //Hit the edge of the board
+                }
+            }
+            //Down + Left
+            currentPosition = new ChessPosition(myPosition.getRow() - 1,myPosition.getColumn() - 1);
+            while(board.getPiece(currentPosition) == null){
+                int curRow = currentPosition.getRow();
+                int curCol = currentPosition.getColumn();
+                ChessMove possibleMove = new ChessMove(myPosition,currentPosition,null);
+                moveList.add(possibleMove);
+                if(curRow > 1 && curCol > 1){
+                    currentPosition = new ChessPosition(curRow - 1, curCol - 1);
+                } else{
+                    break; //Hit the edge of the board
+                }
+            }
+            //Up + Left
+            currentPosition = new ChessPosition(myPosition.getRow() + 1,myPosition.getColumn() - 1);
+            while(board.getPiece(currentPosition) == null){
+                int curRow = currentPosition.getRow();
+                int curCol = currentPosition.getColumn();
+                ChessMove possibleMove = new ChessMove(myPosition,currentPosition,null);
+                moveList.add(possibleMove);
+                if(curRow < 8 && curCol > 1){
+                    currentPosition = new ChessPosition(curRow + 1, curCol - 1);
+                } else{
+                    break; //Hit the edge of the board
                 }
             }
         }
