@@ -11,6 +11,7 @@ import java.util.HashSet;
  */
 public class ChessGame {
     private ChessBoard board;
+    private TeamColor teamTurn;
 
     private ChessPosition getKingPosition(TeamColor teamColor){
         ChessPosition kingPosition = new ChessPosition(0,0);
@@ -35,7 +36,7 @@ public class ChessGame {
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return this.teamTurn;
     }
 
     /**
@@ -44,7 +45,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        this.teamTurn = team;
     }
 
     /**
