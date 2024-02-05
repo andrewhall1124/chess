@@ -45,8 +45,8 @@ public class ChessPiece {
         return this.type;
     }
 
-    private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moveList = new HashSet<>();
+    private HashSet<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
+        HashSet<ChessMove> moveList = new HashSet<>();
         ChessPosition currentPosition = myPosition;
         //Up + Right
         if (myPosition.getRow() < 8 && myPosition.getColumn() < 8) {
@@ -132,8 +132,8 @@ public class ChessPiece {
         return moveList;
     }
 
-    private Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition){
-        Collection<ChessMove> moveList = new HashSet<>();
+    private HashSet<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition){
+        HashSet<ChessMove> moveList = new HashSet<>();
         ChessPosition currentPosition = myPosition;
         //Up
         if(myPosition.getRow() < 8){
@@ -197,8 +197,8 @@ public class ChessPiece {
         }
         return moveList;
     }
-    private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition){
-        Collection<ChessMove> moveList = new HashSet<>();
+    private HashSet<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition){
+        HashSet<ChessMove> moveList = new HashSet<>();
         ChessPosition currentPosition = myPosition;
 
         //Column 1
@@ -280,8 +280,8 @@ public class ChessPiece {
 
         return moveList;
     }
-    private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition){
-        Collection<ChessMove> moveList = new HashSet<>();
+    private HashSet<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition){
+        HashSet<ChessMove> moveList = new HashSet<>();
         ChessPosition currentPosition = myPosition;
         //White
         if(board.getPiece(myPosition).getTeamColor() == (ChessGame.TeamColor.WHITE)){
@@ -487,16 +487,16 @@ public class ChessPiece {
         }
         return moveList;
     }
-    private Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition){
-        Collection<ChessMove> moveList = new HashSet<>();
-        Collection<ChessMove> bishopMoves = bishopMoves(board,myPosition);
-        Collection<ChessMove> rookMoves = rookMoves(board,myPosition);
+    private HashSet<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition){
+        HashSet<ChessMove> moveList = new HashSet<>();
+        HashSet<ChessMove> bishopMoves = bishopMoves(board,myPosition);
+        HashSet<ChessMove> rookMoves = rookMoves(board,myPosition);
         moveList.addAll(bishopMoves);
         moveList.addAll(rookMoves);
         return moveList;
     }
-    private Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition){
-        Collection<ChessMove> moveList = new HashSet<>();
+    private HashSet<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition){
+        HashSet<ChessMove> moveList = new HashSet<>();
         ChessPosition currentPosition = myPosition;
         //Up
         if(myPosition.getRow() < 8){
@@ -578,9 +578,9 @@ public class ChessPiece {
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
      *
-     * @return Collection of valid moves
+     * @return HashSet of valid moves
      */
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+    public HashSet<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         if(board.getPiece(myPosition).getPieceType().equals(PieceType.BISHOP)) {
             return bishopMoves(board, myPosition);
         }
@@ -599,7 +599,7 @@ public class ChessPiece {
         else if(board.getPiece(myPosition).getPieceType().equals(PieceType.PAWN)) {
             return pawnMoves(board, myPosition);
         }
-        return new ArrayList<>();
+        return new HashSet<>();
     }
 
     @Override
