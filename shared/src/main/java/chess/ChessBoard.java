@@ -35,6 +35,17 @@ public class ChessBoard {
         return squares[position.getRow() - 1][position.getColumn() - 1];
     }
 
+    /**
+     * Removes a chess piece on the chessboard
+     *
+     * @param position The position to remove the piece from
+     * @return void
+     */
+
+    public void removePiece(ChessPosition position){
+        this.squares[position.getRow()-1][position.getColumn()-1] = null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
