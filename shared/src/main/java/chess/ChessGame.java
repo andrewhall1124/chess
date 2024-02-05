@@ -11,6 +11,21 @@ import java.util.Collection;
 public class ChessGame {
     private ChessBoard board;
 
+    private ChessPosition getKingPosition(TeamColor teamColor){
+        ChessPosition kingPosition = new ChessPosition(0,0);
+        for(int i = 1; i <= 8; i++){
+            for(int j = 1; j <= 8; j++){
+                ChessPosition currentPosition = new ChessPosition(i,j);
+                if(board.getPiece(currentPosition) != null
+                        &&board.getPiece(currentPosition).getPieceType() == ChessPiece.PieceType.KING
+                        && board.getPiece(currentPosition).getTeamColor() == teamColor){
+                    return currentPosition;
+                }
+            }
+        }
+        return kingPosition;
+    }
+
     public ChessGame() {
 
     }
