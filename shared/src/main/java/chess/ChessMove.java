@@ -45,7 +45,7 @@ public class ChessMove {
 
     @Override
     public String toString() {
-        return this.startPosition+ "->" + this.endPosition;
+        return this.startPosition+ "->" + this.endPosition + this.promotionPiece;
     }
     @Override
     public boolean equals(Object o) {

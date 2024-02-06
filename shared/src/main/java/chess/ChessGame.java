@@ -94,17 +94,32 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         if(teamTurn == board.getPiece(move.getStartPosition()).getTeamColor()){
-            ChessPiece currentPiece = board.getPiece(move.getStartPosition());
-            HashSet<ChessMove> possibleMoves = currentPiece.pieceMoves(board,move.getStartPosition());
+            //Figure out end piece
+            ChessPiece originalPiece = board.getPiece(move.getStartPosition());
+            ChessPiece promotionPiece = new ChessPiece(this.teamTurn,originalPiece.getPieceType());
+            if(move.getPromotionPiece() != null){
+               promotionPiece.setPieceType(move.getPromotionPiece());
+            }
+            HashSet<ChessMove> possibleMoves = originalPiece.pieceMoves(board,move.getStartPosition());
             //Check that move is possible
             if(possibleMoves.contains(move)){
                 //Make move
-                board.removePiece(move.getStartPosition());
-                board.addPiece(move.getEndPosition(),currentPiece);
+                if(move.getPromotionPiece() != null){
+                    board.removePiece(move.getStartPosition());
+                    board.addPiece(move.getEndPosition(),promotionPiece);
+                } else{
+                    board.removePiece(move.getStartPosition());
+                    board.addPiece(move.getEndPosition(),originalPiece);
+                }
                 //Check if King is in check
                 if(isInCheck(this.teamTurn)){
-                    board.removePiece(move.getEndPosition());
-                    board.addPiece(move.getStartPosition(),currentPiece);
+                    if(move.getPromotionPiece() != null){
+                        board.removePiece(move.getEndPosition());
+                        board.addPiece(move.getStartPosition(),promotionPiece);
+                    } else{
+                        board.removePiece(move.getEndPosition());
+                        board.addPiece(move.getStartPosition(),originalPiece);
+                    }
                     throw new InvalidMoveException("Invalid move: puts king in check");
                 }
                 //Alternate team turn
