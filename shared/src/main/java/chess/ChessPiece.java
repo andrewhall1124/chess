@@ -12,7 +12,7 @@ import java.util.*;
 public class ChessPiece {
 
     private final ChessGame.TeamColor pieceColor;
-    private final ChessPiece.PieceType type;
+    private ChessPiece.PieceType type;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
@@ -43,6 +43,9 @@ public class ChessPiece {
      */
     public PieceType getPieceType() {
         return this.type;
+    }
+    public void setPieceType(PieceType type){
+        this.type = type;
     }
 
     private HashSet<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
