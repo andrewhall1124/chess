@@ -14,7 +14,7 @@ public class ChessGame {
     private TeamColor teamTurn;
 
     private ChessPosition getKingPosition(TeamColor teamColor){
-        ChessPosition kingPosition = new ChessPosition(0,0);
+        ChessPosition kingPosition = new ChessPosition(1,1);
         for(int i = 1; i <= 8; i++){
             for(int j = 1; j <= 8; j++){
                 ChessPosition currentPosition = new ChessPosition(i,j);
@@ -85,7 +85,23 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        return true;
+        ChessPosition kingPosition = getKingPosition(teamColor);
+        for(int i = 1; i <= 8; i++){
+            for(int j = 1; j <= 8; j++){
+                ChessPosition currentPosition = new ChessPosition(i,j);
+                if(board.getPiece(currentPosition) != null
+                        && board.getPiece(currentPosition).getTeamColor() != teamColor){
+                    HashSet<ChessMove> oponentMoves = board.getPiece(currentPosition).pieceMoves(board,currentPosition);
+                    for(ChessMove move : oponentMoves){
+                        if(move.getEndPosition().equals(kingPosition)){
+                            return true;
+                        }
+                    }
+
+                }
+            }
+        }
+        return false;
     }
 
     /**
