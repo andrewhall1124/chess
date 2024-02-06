@@ -67,16 +67,31 @@ public class ChessGame {
         if(board.getPiece(startPosition) == null){
             return null;
         } else{
-            ChessPiece currentPiece = board.getPiece(startPosition);
-            HashSet<ChessMove> possibleMoves = currentPiece.pieceMoves(board,startPosition);
+            ChessPiece originalPiece = board.getPiece(startPosition);
+            HashSet<ChessMove> possibleMoves = originalPiece.pieceMoves(board,startPosition);
             HashSet<ChessMove> validatedMoves = new HashSet<>();
-            ChessBoard boardCopy = board;
             for(ChessMove move : possibleMoves){
+                ChessPiece promotionPiece = new ChessPiece(this.teamTurn,originalPiece.getPieceType());
+                if(move.getPromotionPiece() != null){
+                    promotionPiece.setPieceType(move.getPromotionPiece());
+                }
                 //Make move
-                board.removePiece(move.getStartPosition());
-                board.addPiece(move.getEndPosition(),currentPiece);
-                if(isInCheck(currentPiece.getTeamColor())){
-                    board = boardCopy;
+                if(move.getPromotionPiece() != null){
+                    board.removePiece(move.getStartPosition());
+                    board.addPiece(move.getEndPosition(),promotionPiece);
+                }
+                else{
+                    board.removePiece(move.getStartPosition());
+                    board.addPiece(move.getEndPosition(),originalPiece);
+                }
+                if(isInCheck(originalPiece.getTeamColor())){
+                    if(move.getPromotionPiece() != null){
+                        board.removePiece(move.getEndPosition());
+                        board.addPiece(move.getStartPosition(),promotionPiece);
+                    } else{
+                        board.removePiece(move.getEndPosition());
+                        board.addPiece(move.getStartPosition(),originalPiece);
+                    }
                 }
                 else{
                     validatedMoves.add(move);
