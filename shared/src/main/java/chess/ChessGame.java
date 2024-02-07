@@ -134,7 +134,7 @@ public class ChessGame {
         ChessPiece currentPiece = board.getPiece(move.getStartPosition());
         //Check for team turn
         if(currentPiece.getTeamColor() == this.teamTurn){
-            HashSet<ChessMove> validatedMoves = currentPiece.pieceMoves(board,move.getStartPosition());
+            HashSet<ChessMove> validatedMoves = validMoves(move.getStartPosition());
             //Check that move is valid
             if(validatedMoves.contains(move)){
                 if(move.getPromotionPiece() == null){
