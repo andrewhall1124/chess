@@ -28,10 +28,15 @@ public class Server {
     }
 
     private Object clear(Request req, Response res) {
+        System.out.println("Clear endpoint hit");
         gameService.clear();
         userService.clear();
         authService.clear();
-        return new Gson();
+        Gson gson = new Gson();
+        String response = gson.toJson("Hello world");
+        res.type("application/json");
+        res.status(200);
+        return response;
     }
 
     public void stop() {
