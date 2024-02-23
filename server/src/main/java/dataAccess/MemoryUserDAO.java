@@ -1,7 +1,6 @@
 package dataAccess;
 import model.UserData;
 import java.util.ArrayList;
-import java.util.UUID;
 
 public class MemoryUserDAO {
     private final ArrayList<UserData> userList = new ArrayList<>();
@@ -23,5 +22,4 @@ public class MemoryUserDAO {
         UserData newUser = new UserData(username,password,email);
         userList.add(newUser);
     }
-
 }

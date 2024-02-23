@@ -11,6 +11,7 @@ import service.GameService;
 import service.UserService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,5 +36,22 @@ public class MyServiceTests {
         String authToken = userService.register("Andrew", "Password", "andrew@me.com");
         String testToken = authDao.getToken("Andrew");
         assertEquals(testToken, authToken);
+    }
+
+    @Test
+    public void loginSuccess(){
+        String authToken = userService.register("Andrew", "Password", "andrew@me.com");
+        userService.logout(authToken);
+        HashMap<String, String> result = userService.login("Andrew", "Password");
+        String testToken = authDao.getToken("Andrew");
+        assertEquals(testToken,result.get("authToken"));
+    }
+
+    @Test
+    public void logoutSuccess(){
+        String authToken = userService.register("Andrew", "Password", "andrew@me.com");
+        userService.logout(authToken);
+        String testToken = authDao.getToken("Andrew");
+        assertNull(testToken);
     }
 }

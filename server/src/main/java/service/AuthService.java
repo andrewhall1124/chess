@@ -14,8 +14,4 @@ public class AuthService {
     public void clear(){
         dataAccess.deleteTokens();
     }
-
-    String getToken(String username){
-        return dataAccess.getToken(username);
-    }
 }
