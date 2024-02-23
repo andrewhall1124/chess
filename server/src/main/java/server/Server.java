@@ -9,6 +9,8 @@ import service.GameService;
 import service.AuthService;
 import spark.*;
 
+import java.util.Map;
+
 public class Server {
     private final GameService gameService = new GameService(new MemoryGameDAO());
     private final UserService userService = new UserService(new MemoryUserDAO());
@@ -20,7 +22,7 @@ public class Server {
         Spark.staticFiles.location("web");
 
         Spark.delete("/db", this::clear);
-        Spark.post("/register", this::register);
+        Spark.post("/user", this::register);
         Spark.post("/login", this::login);
         Spark.delete("/logout", this::logout);
         Spark.get("/game", this::listGames);
@@ -32,19 +34,30 @@ public class Server {
     }
 
     private Object clear(Request req, Response res) {
-        System.out.println("Clear endpoint hit");
         gameService.clear();
         userService.clear();
         authService.clear();
         Gson gson = new Gson();
-        String response = gson.toJson("Hello world");
         res.type("application/json");
         res.status(200);
-        return response;
+        return gson;
     }
 
     private Object register(Request req, Response res){
-        return new Gson();
+        var body = new Gson().fromJson(req.body(), Map.class);
+        String username = body.get("username").toString();
+        String password = body.get("password").toString();
+        String email = body.get("email").toString();
+
+        String authToken = userService.register(username,password,email);
+        res.type("application/json");
+        res.status(200);
+        var obj = Map.of(
+                "username", username,
+                "authToken", authToken
+        );
+        var serializer = new Gson();
+        return serializer.toJson(obj);
     }
 
     private Object login(Request req, Response res){

@@ -1,13 +1,43 @@
 package dataAccess;
 
+import model.AuthData;
 import model.GameData;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.UUID;
 
 public class MemoryAuthDAO {
-    private final ArrayList<GameData> tokensList = new ArrayList<>();
+    private final ArrayList<AuthData> tokensList = new ArrayList<>();
 
     public void deleteTokens(){
         tokensList.clear();
+    }
+
+    public void addToken(String username){
+        UUID uuid = UUID.randomUUID();
+        AuthData newToken = new AuthData(username, uuid.toString());
+        tokensList.add(newToken);
+    }
+
+    public String getToken(String username){
+        for(AuthData token : tokensList){
+            if(token.getUsername().equals(username)){
+                return token.getUsername();
+            }
+        }
+        return null;
+    }
+
+    public String deleteToken(String authToken) {
+        Iterator<AuthData> iterator = tokensList.iterator();
+        while (iterator.hasNext()) {
+            AuthData token = iterator.next();
+            if (token.getAuthToken().equals(authToken)) {
+                iterator.remove();
+                return token.getUsername();
+            }
+        }
+        return null;
     }
 }

@@ -3,17 +3,29 @@ package model;
 import chess.ChessGame;
 
 public class GameData {
-    private Number id;
+    private String id = "";
     private String whiteUserName;
     private String blackUserName;
     private String gameName;
     private ChessGame game;
 
-    public GameData(Number id, String whiteUserName, String blackUserName, String gameName, ChessGame game){
-        this.id = id;
-        this.whiteUserName = whiteUserName;
-        this.blackUserName = blackUserName;
+    public GameData(String gameName){
         this.gameName = gameName;
-        this.game = game;
+    }
+
+    public void setWhiteUserName(String name){
+        this.whiteUserName = name;
+    }
+
+    public void setBlackUserName(String name){
+        this.blackUserName = name;
+    }
+
+    public void setId(String uuid){
+        this.id = uuid;
+    }
+
+    public String getId(){
+        return this.id;
     }
 }
