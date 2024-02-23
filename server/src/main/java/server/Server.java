@@ -19,9 +19,13 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        // Register your endpoints and handle exceptions here.
         Spark.delete("/db", this::clear);
-
+        Spark.post("/register", this::register);
+        Spark.post("/login", this::login);
+        Spark.delete("/logout", this::logout);
+        Spark.get("/game", this::listGames);
+        Spark.delete("/game", this::createGame);
+        Spark.delete("/game", this::joinGame);
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -37,6 +41,30 @@ public class Server {
         res.type("application/json");
         res.status(200);
         return response;
+    }
+
+    private Object register(Request req, Response res){
+        return new Gson();
+    }
+
+    private Object login(Request req, Response res){
+        return new Gson();
+    }
+
+    private Object logout(Request req, Response res){
+        return new Gson();
+    }
+
+    private Object listGames(Request req, Response res){
+        return new Gson();
+    }
+
+    private Object createGame(Request req, Response res){
+        return new Gson();
+    }
+
+    private Object joinGame(Request req, Response res){
+        return new Gson();
     }
 
     public void stop() {

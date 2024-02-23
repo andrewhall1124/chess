@@ -11,4 +11,12 @@ public class MemoryGameDAO implements GameDAO {
         System.out.println("Game DAO called");
         gameList.clear();
     }
+
+    public void addGame(GameData game){
+        gameList.add(game);
+    }
+
+    public ArrayList<GameData> getGames(){
+        return this.gameList;
+    }
 }
