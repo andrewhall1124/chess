@@ -12,9 +12,12 @@ import spark.*;
 import java.util.Map;
 
 public class Server {
-    private final GameService gameService = new GameService(new MemoryGameDAO());
-    private final UserService userService = new UserService(new MemoryUserDAO());
-    private final AuthService authService = new AuthService(new MemoryAuthDAO());
+    private final MemoryUserDAO userDao = new MemoryUserDAO();
+    private final MemoryAuthDAO authDao = new MemoryAuthDAO();
+    private final MemoryGameDAO gameDAO = new MemoryGameDAO();
+    private final GameService gameService = new GameService(gameDAO);
+    private final UserService userService = new UserService(userDao, authDao);
+    private final AuthService authService = new AuthService(authDao);
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);

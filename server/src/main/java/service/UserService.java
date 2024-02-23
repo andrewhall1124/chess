@@ -1,30 +1,29 @@
 package service;
 
-import com.google.gson.Gson;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryUserDAO;
-import model.AuthData;
 import model.UserData;
 
 
 public class UserService {
 
-    private final MemoryUserDAO dataAccess;
+    private final MemoryUserDAO userDAO;
+    private final MemoryAuthDAO authDAO;
 
-    public UserService(MemoryUserDAO dataAccess) {
-        this.dataAccess = dataAccess;
+    public UserService(MemoryUserDAO userAccess, MemoryAuthDAO authAccess) {
+        this.userDAO = userAccess;
+        this.authDAO = authAccess;
     }
 
     public void clear(){
-        dataAccess.deleteUsers();
+        userDAO.deleteUsers();
     }
 
     public String register(String username, String password, String email){
-        if(dataAccess.getUser(username) == null){
-            return dataAccess.createUser(username,password,email);
+        if(userDAO.getUser(username) == null){
+            userDAO.createUser(username,password,email);
+            return authDAO.addToken(username);
         }
-        else{
-            return null;
-        }
+        return null;
     }
 }

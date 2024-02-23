@@ -8,7 +8,7 @@ public class MemoryUserDAO {
 
     public UserData getUser(String username){
         for(UserData user : userList){
-            if(user.getUsername() == username){
+            if(user.getUsername().equals(username)){
                 return user;
             }
         }

@@ -14,16 +14,17 @@ public class MemoryAuthDAO {
         tokensList.clear();
     }
 
-    public void addToken(String username){
+    public String addToken(String username){
         UUID uuid = UUID.randomUUID();
         AuthData newToken = new AuthData(username, uuid.toString());
         tokensList.add(newToken);
+        return uuid.toString();
     }
 
     public String getToken(String username){
         for(AuthData token : tokensList){
             if(token.getUsername().equals(username)){
-                return token.getUsername();
+                return token.getAuthToken();
             }
         }
         return null;
