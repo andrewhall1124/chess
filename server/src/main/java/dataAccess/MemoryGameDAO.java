@@ -2,8 +2,10 @@ package dataAccess;
 
 import chess.ChessGame;
 import model.GameData;
+import service.GameService;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class MemoryGameDAO implements GameDAO {
     private final ArrayList<GameData> gameList = new ArrayList<>();
@@ -13,12 +15,24 @@ public class MemoryGameDAO implements GameDAO {
         gameList.clear();
     }
 
-    public void addGame(GameData game){
+    public String addGame(GameData game){
+        UUID uuid = UUID.randomUUID();
+        game.setId(uuid.toString());
         gameList.add(game);
+        return uuid.toString();
     }
 
     public ArrayList<GameData> getGames(){
         return this.gameList;
+    }
+
+    public GameData getGame(String gameId){
+        for(GameData game : gameList){
+            if(game.getId().equals(gameId)){
+                return game;
+            }
+        }
+        return null;
     }
 
     public void joinGame(ChessGame.TeamColor teamColor, String gameId, String username){

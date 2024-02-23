@@ -4,31 +4,28 @@ import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryGameDAO;
 import dataAccess.MemoryUserDAO;
 import model.GameData;
-import model.UserData;
 import org.junit.jupiter.api.Test;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MyServiceTests {
     private final MemoryUserDAO userDao = new MemoryUserDAO();
     private final MemoryAuthDAO authDao = new MemoryAuthDAO();
     private final MemoryGameDAO gameDAO = new MemoryGameDAO();
-    private final GameService gameService = new GameService(gameDAO);
+    private final GameService gameService = new GameService(gameDAO, authDao);
     private final UserService userService = new UserService(userDao, authDao);
     private final AuthService authService = new AuthService(authDao);
 
     @Test
     public void clearTest(){
-        GameData newGame = new GameData("the hill");
-        gameService.add(newGame);
+        String authToken = userService.register("Andrew", "Password", "andrew@me.com");
+        gameService.createGame(authToken,"Delete this game");
         gameService.clear();
-        assertEquals(new ArrayList<>(), gameService.get());
+        assertEquals(new ArrayList<>(), gameService.getGames(authToken));
     }
 
     @Test
@@ -53,5 +50,22 @@ public class MyServiceTests {
         userService.logout(authToken);
         String testToken = authDao.getToken("Andrew");
         assertNull(testToken);
+    }
+
+    @Test
+    public void createGameSuccess(){
+        String authToken = userService.register("Andrew", "Password", "andrew@me.com");
+        String gameId = gameService.createGame(authToken, "My Chess Game");
+        GameData testGame = gameDAO.getGame(gameId);
+        assertEquals("My Chess Game", testGame.getName());
+    }
+
+    @Test
+    public void joinGameSuccess(){
+        String authToken = userService.register("Andrew", "Password", "andrew@me.com");
+        String gameId = gameService.createGame(authToken, "My Chess Game");
+        gameService.joinGame(ChessGame.TeamColor.WHITE, gameId, authToken);
+        GameData testGame = gameDAO.getGame(gameId);
+        assertEquals("Andrew", testGame.getWhiteUserName());
     }
 }

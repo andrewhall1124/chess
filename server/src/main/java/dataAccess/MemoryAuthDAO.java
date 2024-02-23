@@ -30,6 +30,15 @@ public class MemoryAuthDAO {
         return null;
     }
 
+    public AuthData verifyToken(String authToken){
+        for(AuthData token : tokensList){
+            if(token.getAuthToken().equals(authToken)){
+                return token;
+            }
+        }
+        return null;
+    }
+
     public String deleteToken(String authToken) {
         Iterator<AuthData> iterator = tokensList.iterator();
         while (iterator.hasNext()) {

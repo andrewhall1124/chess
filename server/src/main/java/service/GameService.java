@@ -1,28 +1,51 @@
 package service;
 
+import chess.ChessGame;
 import dataAccess.DataAccessException;
+import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryGameDAO;
+import model.AuthData;
 import model.GameData;
 
 import java.util.ArrayList;
 
 public class GameService {
-    private final MemoryGameDAO dataAccess;
+    private final MemoryGameDAO gameDAO;
+    private final MemoryAuthDAO authDAO;
 
-    public GameService(MemoryGameDAO dataAccess) {
-        this.dataAccess = dataAccess;
+    public GameService(MemoryGameDAO gameAccess, MemoryAuthDAO authAccess) {
+        this.gameDAO = gameAccess;
+        this.authDAO = authAccess;
     }
 
     public void clear(){
         System.out.println("Game service called");
-        dataAccess.deleteGames();
+        gameDAO.deleteGames();
     }
 
-    public void add(GameData game){
-        dataAccess.addGame(game);
+    public String createGame(String authToken, String gameName){
+        if(authDAO.verifyToken(authToken) != null){
+            GameData newGame = new GameData(gameName);
+            return gameDAO.addGame(newGame);
+        }
+        else{
+            return null;
+        }
     }
 
-    public ArrayList<GameData> get(){
-        return dataAccess.getGames();
+    public ArrayList<GameData> getGames(String authToken){
+        if(authDAO.verifyToken(authToken) != null){
+            return gameDAO.getGames();
+        }
+        else{
+            return null;
+        }
+    }
+
+    public void joinGame(ChessGame.TeamColor teamColor, String gameId, String authToken){
+        AuthData user = authDAO.verifyToken(authToken);
+        if(gameDAO.getGame(gameId) != null){
+            gameDAO.joinGame(teamColor,gameId,user.getUsername());
+        }
     }
 }

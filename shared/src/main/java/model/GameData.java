@@ -28,4 +28,16 @@ public class GameData {
     public String getId(){
         return this.id;
     }
+
+    public String getName(){
+        return this.gameName;
+    }
+
+    public String getWhiteUserName(){
+        return this.whiteUserName;
+    }
+
+    public String getBlackUserName(){
+        return this.blackUserName;
+    }
 }

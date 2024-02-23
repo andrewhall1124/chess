@@ -15,7 +15,7 @@ public class Server {
     private final MemoryUserDAO userDao = new MemoryUserDAO();
     private final MemoryAuthDAO authDao = new MemoryAuthDAO();
     private final MemoryGameDAO gameDAO = new MemoryGameDAO();
-    private final GameService gameService = new GameService(gameDAO);
+    private final GameService gameService = new GameService(gameDAO, authDao);
     private final UserService userService = new UserService(userDao, authDao);
     private final AuthService authService = new AuthService(authDao);
 
