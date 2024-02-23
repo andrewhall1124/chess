@@ -23,9 +23,13 @@ public class MyServiceTests {
     @Test
     public void clearTest(){
         String authToken = userService.register("Andrew", "Password", "andrew@me.com");
-        gameService.createGame(authToken,"Delete this game");
+        String gameId = gameService.createGame(authToken, "My Chess Game");
+        userService.clear();
         gameService.clear();
-        assertEquals(new ArrayList<>(), gameService.getGames(authToken));
+        authService.clear();
+        assertNull(userDao.getUser("Andrew"));
+        assertNull(gameDAO.getGame(gameId));
+        assertNull(authDao.verifyToken(authToken));
     }
 
     @Test

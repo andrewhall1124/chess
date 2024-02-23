@@ -19,7 +19,6 @@ public class GameService {
     }
 
     public void clear(){
-        System.out.println("Game service called");
         gameDAO.deleteGames();
     }
 
