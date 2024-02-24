@@ -108,7 +108,14 @@ public class Server {
     }
 
     private Object joinGame(Request req, Response res){
-        return new Gson();
+        var body = new Gson().fromJson(req.body(), Map.class);
+        String authToken = req.headers("authorization");
+        String playerColor = body.get("playerColor").toString();
+        String gameId = body.get("gameID").toString();
+        gameService.joinGame(playerColor, gameId, authToken);
+        res.type("application/json");
+        res.status(200);
+        return "{}";
     }
 
     public void stop() {

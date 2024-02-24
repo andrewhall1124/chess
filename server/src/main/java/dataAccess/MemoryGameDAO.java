@@ -34,12 +34,12 @@ public class MemoryGameDAO implements GameDAO {
         return null;
     }
 
-    public void joinGame(ChessGame.TeamColor teamColor, String gameId, String username){
+    public void joinGame(String playerColor, String gameId, String username){
         for (GameData game : gameList) {
             if (game.getId().equals(gameId)) {
-                if (teamColor == ChessGame.TeamColor.WHITE) {
+                if (playerColor.equals("WHITE")) {
                     game.setWhiteUserName(username);
-                } else if (teamColor == ChessGame.TeamColor.BLACK) {
+                } else if (playerColor.equals("BLACK")) {
                     game.setBlackUserName(username);
                 }
             }

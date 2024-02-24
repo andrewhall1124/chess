@@ -41,10 +41,10 @@ public class GameService {
         }
     }
 
-    public void joinGame(ChessGame.TeamColor teamColor, String gameId, String authToken){
+    public void joinGame(String playerColor, String gameId, String authToken){
         AuthData user = authDAO.verifyToken(authToken);
         if(gameDAO.getGame(gameId) != null){
-            gameDAO.joinGame(teamColor,gameId,user.getUsername());
+            gameDAO.joinGame(playerColor,gameId,user.getUsername());
         }
     }
 }
