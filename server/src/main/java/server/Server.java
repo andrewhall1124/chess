@@ -4,11 +4,14 @@ import com.google.gson.Gson;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryGameDAO;
 import dataAccess.MemoryUserDAO;
+import model.GameData;
 import service.UserService;
 import service.GameService;
 import service.AuthService;
 import spark.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Server {
@@ -26,11 +29,11 @@ public class Server {
 
         Spark.delete("/db", this::clear);
         Spark.post("/user", this::register);
-        Spark.post("/login", this::login);
-        Spark.delete("/logout", this::logout);
+        Spark.post("/session", this::login);
+        Spark.delete("/session", this::logout);
         Spark.get("/game", this::listGames);
-        Spark.delete("/game", this::createGame);
-        Spark.delete("/game", this::joinGame);
+        Spark.post("/game", this::createGame);
+        Spark.put("/game", this::joinGame);
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -40,10 +43,9 @@ public class Server {
         gameService.clear();
         userService.clear();
         authService.clear();
-        Gson gson = new Gson();
         res.type("application/json");
         res.status(200);
-        return gson;
+        return "{}";
     }
 
     private Object register(Request req, Response res){
@@ -64,19 +66,45 @@ public class Server {
     }
 
     private Object login(Request req, Response res){
-        return new Gson();
+        var body = new Gson().fromJson(req.body(), Map.class);
+        String username = body.get("username").toString();
+        String password = body.get("password").toString();
+        HashMap<String, String> response = userService.login(username,password);
+        res.type("application/json");
+        res.status(200);
+        var serializer = new Gson();
+        return serializer.toJson(response);
     }
 
     private Object logout(Request req, Response res){
-        return new Gson();
+        String authToken = req.headers("authorization");
+        userService.logout(authToken);
+        res.type("application/json");
+        res.status(200);
+        return "{}";
     }
 
     private Object listGames(Request req, Response res){
-        return new Gson();
-    }
+        String authToken = req.headers("authorization");
+        ArrayList<GameData> games = gameService.getGames(authToken);
+        HashMap<String, Object> response = new HashMap<>();
+        response.put("games", games);
+        res.type("application/json");
+        res.status(200);
+        var serializer = new Gson();
+        return serializer.toJson(response);    }
 
     private Object createGame(Request req, Response res){
-        return new Gson();
+        var body = new Gson().fromJson(req.body(), Map.class);
+        String authToken = req.headers("authorization");
+        String gameName = body.get("gameName").toString();
+        String gameId = gameService.createGame(authToken,gameName);
+        HashMap<String, Object> response = new HashMap<>();
+        response.put("gameId",gameId);
+        res.type("application/json");
+        res.status(200);
+        var serializer = new Gson();
+        return serializer.toJson(response);
     }
 
     private Object joinGame(Request req, Response res){

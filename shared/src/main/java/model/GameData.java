@@ -4,8 +4,8 @@ import chess.ChessGame;
 
 public class GameData {
     private String id = "";
-    private String whiteUserName;
-    private String blackUserName;
+    private String whiteUserName = "";
+    private String blackUserName = "";
     private String gameName;
     private ChessGame game;
 
