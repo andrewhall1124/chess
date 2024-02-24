@@ -1,28 +1,27 @@
 package service;
 
+import dataAccess.DataAccessException;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryUserDAO;
 import model.UserData;
 
 import java.util.HashMap;
-import java.util.Map;
-
 
 public class UserService {
 
     private final MemoryUserDAO userDAO;
     private final MemoryAuthDAO authDAO;
 
-    public UserService(MemoryUserDAO userAccess, MemoryAuthDAO authAccess) {
+    public UserService(MemoryUserDAO userAccess, MemoryAuthDAO authAccess){
         this.userDAO = userAccess;
         this.authDAO = authAccess;
     }
 
-    public void clear(){
-        userDAO.deleteUsers();
+    public void clear()throws DataAccessException{
+        userDAO.clearUsers();
     }
 
-    public String register(String username, String password, String email){
+    public String register(String username, String password, String email) throws DataAccessException{
         if(userDAO.getUser(username) == null){
             userDAO.createUser(username,password,email);
             return authDAO.addToken(username);
@@ -30,7 +29,7 @@ public class UserService {
         return null;
     }
 
-    public HashMap<String, String> login(String username, String password) {
+    public HashMap<String, String> login(String username, String password) throws DataAccessException {
         UserData credentials = userDAO.getUser(username);
         if (credentials != null && credentials.getPassword().equals(password)) {
             String authToken = authDAO.addToken(username);
@@ -42,7 +41,7 @@ public class UserService {
         return null;
     }
 
-    public void logout(String authToken){
+    public void logout(String authToken) throws DataAccessException{
         authDAO.deleteToken(authToken);
     }
 }

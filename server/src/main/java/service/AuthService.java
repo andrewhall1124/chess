@@ -1,5 +1,6 @@
 package service;
 
+import dataAccess.DataAccessException;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryGameDAO;
 
@@ -11,7 +12,7 @@ public class AuthService {
         this.dataAccess = dataAccess;
     }
 
-    public void clear(){
-        dataAccess.deleteTokens();
+    public void clear() throws DataAccessException{
+        dataAccess.clearTokens();
     }
 }

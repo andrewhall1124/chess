@@ -18,8 +18,8 @@ public class GameService {
         this.authDAO = authAccess;
     }
 
-    public void clear(){
-        gameDAO.deleteGames();
+    public void clear() throws DataAccessException{
+        gameDAO.clearGames();
     }
 
     public String createGame(String authToken, String gameName){

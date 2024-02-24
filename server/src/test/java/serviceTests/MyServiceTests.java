@@ -1,5 +1,6 @@
 package serviceTests;
 import chess.ChessGame;
+import dataAccess.DataAccessException;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryGameDAO;
 import dataAccess.MemoryUserDAO;
@@ -21,7 +22,7 @@ public class MyServiceTests {
     private final AuthService authService = new AuthService(authDao);
 
     @Test
-    public void clearTest(){
+    public void clearTest() throws DataAccessException {
         String authToken = userService.register("Andrew", "Password", "andrew@me.com");
         String gameId = gameService.createGame(authToken, "My Chess Game");
         userService.clear();
@@ -68,7 +69,7 @@ public class MyServiceTests {
     public void joinGameSuccess(){
         String authToken = userService.register("Andrew", "Password", "andrew@me.com");
         String gameId = gameService.createGame(authToken, "My Chess Game");
-        gameService.joinGame(ChessGame.TeamColor.WHITE, gameId, authToken);
+        gameService.joinGame("WHITE", gameId, authToken);
         GameData testGame = gameDAO.getGame(gameId);
         assertEquals("Andrew", testGame.getWhiteUserName());
     }

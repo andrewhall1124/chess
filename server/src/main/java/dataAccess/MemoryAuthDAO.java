@@ -7,11 +7,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.UUID;
 
-public class MemoryAuthDAO {
+public class MemoryAuthDAO{
     private final ArrayList<AuthData> tokensList = new ArrayList<>();
 
-    public void deleteTokens(){
+    public void clearTokens() throws DataAccessException{
         tokensList.clear();
+//        throw new DataAccessException("Failed to clear database");
     }
 
     public String addToken(String username){

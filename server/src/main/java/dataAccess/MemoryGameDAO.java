@@ -10,7 +10,7 @@ import java.util.UUID;
 public class MemoryGameDAO implements GameDAO {
     private final ArrayList<GameData> gameList = new ArrayList<>();
 
-    public void deleteGames(){
+    public void clearGames(){
         gameList.clear();
     }
 

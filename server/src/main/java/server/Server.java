@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import dataAccess.DataAccessException;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryGameDAO;
 import dataAccess.MemoryUserDAO;
@@ -40,12 +41,24 @@ public class Server {
     }
 
     private Object clear(Request req, Response res) {
-        gameService.clear();
-        userService.clear();
-        authService.clear();
-        res.type("application/json");
-        res.status(200);
-        return "{}";
+        try{
+            gameService.clear();
+            userService.clear();
+            authService.clear();
+            res.type("application/json");
+            res.status(200);
+            return "{}";
+        }
+        catch(DataAccessException exception){
+            res.type("application/json");
+            res.status(500);
+            String message = exception.getMessage();
+            var obj = Map.of(
+                    "Message", message
+            );
+            var serializer = new Gson();
+            return serializer.toJson(obj);
+        }
     }
 
     private Object register(Request req, Response res){
@@ -69,11 +82,34 @@ public class Server {
         var body = new Gson().fromJson(req.body(), Map.class);
         String username = body.get("username").toString();
         String password = body.get("password").toString();
-        HashMap<String, String> response = userService.login(username,password);
-        res.type("application/json");
-        res.status(200);
-        var serializer = new Gson();
-        return serializer.toJson(response);
+        try{
+            HashMap<String, String> response = userService.login(username,password);
+            res.type("application/json");
+            res.status(200);
+            var serializer = new Gson();
+            return serializer.toJson(response);
+        }
+        catch(DataAccessException exception){
+            String message = exception.getMessage();
+            if(message.equals("Unauthorized")){
+                res.type("application/json");
+                res.status(401);
+                var obj = Map.of(
+                        "Message", message
+                );
+                var serializer = new Gson();
+                return serializer.toJson(obj);
+            }
+            else{
+                res.type("application/json");
+                res.status(500);
+                var obj = Map.of(
+                        "Message", message
+                );
+                var serializer = new Gson();
+                return serializer.toJson(obj);
+            }
+        }
     }
 
     private Object logout(Request req, Response res){
