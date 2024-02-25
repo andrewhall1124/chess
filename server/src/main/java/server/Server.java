@@ -52,9 +52,9 @@ public class Server {
         catch(DataAccessException exception){
             res.type("application/json");
             res.status(500);
-            String message = exception.getMessage();
+            String message = "error: " + exception.getMessage();
             var obj = Map.of(
-                    "Message", message
+                    "message", message
             );
             var serializer = new Gson();
             return serializer.toJson(obj);
@@ -78,21 +78,21 @@ public class Server {
             return serializer.toJson(obj);
         }
         catch(DataAccessException exception){
-            String message = exception.getMessage();
-            if(message.equals("Bad request")){
+            String message = "error: " + exception.getMessage();
+            if(exception.getMessage().equals("Bad request")){
                 res.type("application/json");
                 res.status(400);
                 var obj = Map.of(
-                        "Message", message
+                        "message", message
                 );
                 var serializer = new Gson();
                 return serializer.toJson(obj);
             }
-            else if(message.equals("Already taken")){
+            else if(exception.getMessage().equals("Already taken")){
                 res.type("application/json");
                 res.status(403);
                 var obj = Map.of(
-                        "Message", message
+                        "message", message
                 );
                 var serializer = new Gson();
                 return serializer.toJson(obj);
@@ -101,7 +101,7 @@ public class Server {
                 res.type("application/json");
                 res.status(500);
                 var obj = Map.of(
-                        "Message", message
+                        "message", message
                 );
                 var serializer = new Gson();
                 return serializer.toJson(obj);
@@ -122,12 +122,12 @@ public class Server {
             return serializer.toJson(response);
         }
         catch(DataAccessException exception){
-            String message = exception.getMessage();
-            if(message.equals("Unauthorized")){
+            String message = "error: " + exception.getMessage();
+            if(exception.getMessage().equals("Unauthorized")){
                 res.type("application/json");
                 res.status(401);
                 var obj = Map.of(
-                        "Message", message
+                        "message", message
                 );
                 var serializer = new Gson();
                 return serializer.toJson(obj);
@@ -136,7 +136,7 @@ public class Server {
                 res.type("application/json");
                 res.status(500);
                 var obj = Map.of(
-                        "Message", message
+                        "message", message
                 );
                 var serializer = new Gson();
                 return serializer.toJson(obj);
@@ -153,12 +153,12 @@ public class Server {
             return "{}";
         }
         catch(DataAccessException exception){
-            String message = exception.getMessage();
-            if(message.equals("Unauthorized")){
+            String message = "error: " + exception.getMessage();
+            if(exception.getMessage().equals("Unauthorized")){
                 res.type("application/json");
                 res.status(401);
                 var obj = Map.of(
-                        "Message", message
+                        "message", message
                 );
                 var serializer = new Gson();
                 return serializer.toJson(obj);
@@ -167,7 +167,7 @@ public class Server {
                 res.type("application/json");
                 res.status(500);
                 var obj = Map.of(
-                        "Message", message
+                        "message", message
                 );
                 var serializer = new Gson();
                 return serializer.toJson(obj);
@@ -187,12 +187,12 @@ public class Server {
             return serializer.toJson(response);
         }
         catch(DataAccessException exception){
-            String message = exception.getMessage();
-            if(message.equals("Unauthorized")){
+            String message = "error: " + exception.getMessage();
+            if(exception.getMessage().equals("Unauthorized")){
                 res.type("application/json");
                 res.status(401);
                 var obj = Map.of(
-                        "Message", message
+                        "message", message
                 );
                 var serializer = new Gson();
                 return serializer.toJson(obj);
@@ -201,7 +201,7 @@ public class Server {
                 res.type("application/json");
                 res.status(500);
                 var obj = Map.of(
-                        "Message", message
+                        "message", message
                 );
                 var serializer = new Gson();
                 return serializer.toJson(obj);
@@ -223,21 +223,21 @@ public class Server {
             return serializer.toJson(response);
         }
         catch(DataAccessException exception){
-            String message = exception.getMessage();
-            if(message.equals("Bad request")){
+            String message = "error: " + exception.getMessage();
+            if(exception.getMessage().equals("Bad request")){
                 res.type("application/json");
                 res.status(400);
                 var obj = Map.of(
-                        "Message", message
+                        "message", message
                 );
                 var serializer = new Gson();
                 return serializer.toJson(obj);
             }
-            else if(message.equals("Unauthorized")){
+            else if(exception.getMessage().equals("Unauthorized")){
                 res.type("application/json");
                 res.status(401);
                 var obj = Map.of(
-                        "Message", message
+                        "message", message
                 );
                 var serializer = new Gson();
                 return serializer.toJson(obj);
@@ -246,7 +246,7 @@ public class Server {
                 res.type("application/json");
                 res.status(500);
                 var obj = Map.of(
-                        "Message", message
+                        "message", message
                 );
                 var serializer = new Gson();
                 return serializer.toJson(obj);
@@ -266,30 +266,30 @@ public class Server {
             return "{}";
         }
         catch(DataAccessException exception){
-            String message = exception.getMessage();
-            if(message.equals("Bad request")){
+            String message = "error: " + exception.getMessage();
+            if(exception.getMessage().equals("Bad request")){
                 res.type("application/json");
                 res.status(400);
                 var obj = Map.of(
-                        "Message", message
+                        "message", message
                 );
                 var serializer = new Gson();
                 return serializer.toJson(obj);
             }
-            else if(message.equals("Unauthorized")){
+            else if(exception.getMessage().equals("Unauthorized")){
                 res.type("application/json");
                 res.status(401);
                 var obj = Map.of(
-                        "Message", message
+                        "message", message
                 );
                 var serializer = new Gson();
                 return serializer.toJson(obj);
             }
-            else if(message.equals("Already taken")){
+            else if(exception.getMessage().equals("Already taken")){
                 res.type("application/json");
                 res.status(403);
                 var obj = Map.of(
-                        "Message", message
+                        "message", message
                 );
                 var serializer = new Gson();
                 return serializer.toJson(obj);
@@ -298,7 +298,7 @@ public class Server {
                 res.type("application/json");
                 res.status(500);
                 var obj = Map.of(
-                        "Message", message
+                        "message", message
                 );
                 var serializer = new Gson();
                 return serializer.toJson(obj);
