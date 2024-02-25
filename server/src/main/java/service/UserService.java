@@ -26,7 +26,9 @@ public class UserService {
             userDAO.createUser(username,password,email);
             return authDAO.addToken(username);
         }
-        return null;
+        else{
+            throw new DataAccessException("Already taken");
+        }
     }
 
     public HashMap<String, String> login(String username, String password) throws DataAccessException {
@@ -38,7 +40,7 @@ public class UserService {
             resultMap.put("authToken", authToken);
             return resultMap;
         }
-        return null;
+        throw new DataAccessException("Unauthorized");
     }
 
     public void logout(String authToken) throws DataAccessException{

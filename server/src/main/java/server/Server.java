@@ -66,16 +66,48 @@ public class Server {
         String username = body.get("username").toString();
         String password = body.get("password").toString();
         String email = body.get("email").toString();
+        try{
+            String authToken = userService.register(username,password,email);
+            res.type("application/json");
+            res.status(200);
+            var obj = Map.of(
+                    "username", username,
+                    "authToken", authToken
+            );
+            var serializer = new Gson();
+            return serializer.toJson(obj);
+        }
+        catch(DataAccessException exception){
+            String message = exception.getMessage();
+            if(message.equals("Bad request")){
+                res.type("application/json");
+                res.status(400);
+                var obj = Map.of(
+                        "Message", message
+                );
+                var serializer = new Gson();
+                return serializer.toJson(obj);
+            }
+            else if(message.equals("Already taken")){
+                res.type("application/json");
+                res.status(403);
+                var obj = Map.of(
+                        "Message", message
+                );
+                var serializer = new Gson();
+                return serializer.toJson(obj);
+            }
+            else{
+                res.type("application/json");
+                res.status(500);
+                var obj = Map.of(
+                        "Message", message
+                );
+                var serializer = new Gson();
+                return serializer.toJson(obj);
+            }
+        }
 
-        String authToken = userService.register(username,password,email);
-        res.type("application/json");
-        res.status(200);
-        var obj = Map.of(
-                "username", username,
-                "authToken", authToken
-        );
-        var serializer = new Gson();
-        return serializer.toJson(obj);
     }
 
     private Object login(Request req, Response res){
@@ -114,33 +146,112 @@ public class Server {
 
     private Object logout(Request req, Response res){
         String authToken = req.headers("authorization");
-        userService.logout(authToken);
-        res.type("application/json");
-        res.status(200);
-        return "{}";
+        try{
+            userService.logout(authToken);
+            res.type("application/json");
+            res.status(200);
+            return "{}";
+        }
+        catch(DataAccessException exception){
+            String message = exception.getMessage();
+            if(message.equals("Unauthorized")){
+                res.type("application/json");
+                res.status(401);
+                var obj = Map.of(
+                        "Message", message
+                );
+                var serializer = new Gson();
+                return serializer.toJson(obj);
+            }
+            else{
+                res.type("application/json");
+                res.status(500);
+                var obj = Map.of(
+                        "Message", message
+                );
+                var serializer = new Gson();
+                return serializer.toJson(obj);
+            }
+        }
     }
 
     private Object listGames(Request req, Response res){
         String authToken = req.headers("authorization");
-        ArrayList<GameData> games = gameService.getGames(authToken);
-        HashMap<String, Object> response = new HashMap<>();
-        response.put("games", games);
-        res.type("application/json");
-        res.status(200);
-        var serializer = new Gson();
-        return serializer.toJson(response);    }
+        try{
+            ArrayList<GameData> games = gameService.getGames(authToken);
+            HashMap<String, Object> response = new HashMap<>();
+            response.put("games", games);
+            res.type("application/json");
+            res.status(200);
+            var serializer = new Gson();
+            return serializer.toJson(response);
+        }
+        catch(DataAccessException exception){
+            String message = exception.getMessage();
+            if(message.equals("Unauthorized")){
+                res.type("application/json");
+                res.status(401);
+                var obj = Map.of(
+                        "Message", message
+                );
+                var serializer = new Gson();
+                return serializer.toJson(obj);
+            }
+            else{
+                res.type("application/json");
+                res.status(500);
+                var obj = Map.of(
+                        "Message", message
+                );
+                var serializer = new Gson();
+                return serializer.toJson(obj);
+            }
+        }
+    }
 
     private Object createGame(Request req, Response res){
         var body = new Gson().fromJson(req.body(), Map.class);
         String authToken = req.headers("authorization");
         String gameName = body.get("gameName").toString();
-        String gameId = gameService.createGame(authToken,gameName);
-        HashMap<String, Object> response = new HashMap<>();
-        response.put("gameId",gameId);
-        res.type("application/json");
-        res.status(200);
-        var serializer = new Gson();
-        return serializer.toJson(response);
+        try{
+            String gameId = gameService.createGame(authToken,gameName);
+            HashMap<String, Object> response = new HashMap<>();
+            response.put("gameId",gameId);
+            res.type("application/json");
+            res.status(200);
+            var serializer = new Gson();
+            return serializer.toJson(response);
+        }
+        catch(DataAccessException exception){
+            String message = exception.getMessage();
+            if(message.equals("Bad request")){
+                res.type("application/json");
+                res.status(400);
+                var obj = Map.of(
+                        "Message", message
+                );
+                var serializer = new Gson();
+                return serializer.toJson(obj);
+            }
+            else if(message.equals("Unauthorized")){
+                res.type("application/json");
+                res.status(401);
+                var obj = Map.of(
+                        "Message", message
+                );
+                var serializer = new Gson();
+                return serializer.toJson(obj);
+            }
+            else{
+                res.type("application/json");
+                res.status(500);
+                var obj = Map.of(
+                        "Message", message
+                );
+                var serializer = new Gson();
+                return serializer.toJson(obj);
+            }
+        }
     }
 
     private Object joinGame(Request req, Response res){
@@ -148,10 +259,51 @@ public class Server {
         String authToken = req.headers("authorization");
         String playerColor = body.get("playerColor").toString();
         String gameId = body.get("gameID").toString();
-        gameService.joinGame(playerColor, gameId, authToken);
-        res.type("application/json");
-        res.status(200);
-        return "{}";
+        try{
+            gameService.joinGame(playerColor, gameId, authToken);
+            res.type("application/json");
+            res.status(200);
+            return "{}";
+        }
+        catch(DataAccessException exception){
+            String message = exception.getMessage();
+            if(message.equals("Bad request")){
+                res.type("application/json");
+                res.status(400);
+                var obj = Map.of(
+                        "Message", message
+                );
+                var serializer = new Gson();
+                return serializer.toJson(obj);
+            }
+            else if(message.equals("Unauthorized")){
+                res.type("application/json");
+                res.status(401);
+                var obj = Map.of(
+                        "Message", message
+                );
+                var serializer = new Gson();
+                return serializer.toJson(obj);
+            }
+            else if(message.equals("Already taken")){
+                res.type("application/json");
+                res.status(403);
+                var obj = Map.of(
+                        "Message", message
+                );
+                var serializer = new Gson();
+                return serializer.toJson(obj);
+            }
+            else{
+                res.type("application/json");
+                res.status(500);
+                var obj = Map.of(
+                        "Message", message
+                );
+                var serializer = new Gson();
+                return serializer.toJson(obj);
+            }
+        }
     }
 
     public void stop() {

@@ -7,18 +7,21 @@ public class MemoryUserDAO {
 
     public UserData getUser(String username) throws DataAccessException{
         for(UserData user : userList){
-            if(user.getUsername().equals(username)){
+            if (username.equals(user.getUsername())) {
                 return user;
             }
         }
-        throw new DataAccessException("Unauthorized");
+        return null;
     }
 
-    public void clearUsers()throws DataAccessException{
+    public void clearUsers(){
         userList.clear();
     }
 
     public void createUser(String username, String password, String email) throws DataAccessException{
+        if(username == null || password == null || email == null){
+            throw new DataAccessException("Bad request");
+        }
         UserData newUser = new UserData(username,password,email);
         userList.add(newUser);
     }

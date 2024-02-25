@@ -6,7 +6,7 @@ public class GameData {
     private String id = "";
     private String whiteUserName = "";
     private String blackUserName = "";
-    private String gameName;
+    private final String gameName;
     private ChessGame game;
 
     public GameData(String gameName){

@@ -12,7 +12,7 @@ public class AuthService {
         this.dataAccess = dataAccess;
     }
 
-    public void clear() throws DataAccessException{
+    public void clear(){
         dataAccess.clearTokens();
     }
 }

@@ -22,7 +22,7 @@ public class GameService {
         gameDAO.clearGames();
     }
 
-    public String createGame(String authToken, String gameName){
+    public String createGame(String authToken, String gameName) throws DataAccessException{
         if(authDAO.verifyToken(authToken) != null){
             GameData newGame = new GameData(gameName);
             return gameDAO.addGame(newGame);
@@ -32,7 +32,7 @@ public class GameService {
         }
     }
 
-    public ArrayList<GameData> getGames(String authToken){
+    public ArrayList<GameData> getGames(String authToken) throws DataAccessException{
         if(authDAO.verifyToken(authToken) != null){
             return gameDAO.getGames();
         }
@@ -41,8 +41,11 @@ public class GameService {
         }
     }
 
-    public void joinGame(String playerColor, String gameId, String authToken){
+    public void joinGame(String playerColor, String gameId, String authToken) throws DataAccessException{
         AuthData user = authDAO.verifyToken(authToken);
+        if(user == null){
+            throw new DataAccessException("Unauthorized");
+        }
         if(gameDAO.getGame(gameId) != null){
             gameDAO.joinGame(playerColor,gameId,user.getUsername());
         }

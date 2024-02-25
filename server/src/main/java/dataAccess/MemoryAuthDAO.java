@@ -10,19 +10,18 @@ import java.util.UUID;
 public class MemoryAuthDAO{
     private final ArrayList<AuthData> tokensList = new ArrayList<>();
 
-    public void clearTokens() throws DataAccessException{
+    public void clearTokens(){
         tokensList.clear();
-//        throw new DataAccessException("Failed to clear database");
     }
 
-    public String addToken(String username){
+    public String addToken(String username)throws DataAccessException{
         UUID uuid = UUID.randomUUID();
         AuthData newToken = new AuthData(username, uuid.toString());
         tokensList.add(newToken);
         return uuid.toString();
     }
 
-    public String getToken(String username){
+    public String getToken(String username)throws DataAccessException{
         for(AuthData token : tokensList){
             if(token.getUsername().equals(username)){
                 return token.getAuthToken();
@@ -31,7 +30,7 @@ public class MemoryAuthDAO{
         return null;
     }
 
-    public AuthData verifyToken(String authToken){
+    public AuthData verifyToken(String authToken) throws DataAccessException{
         for(AuthData token : tokensList){
             if(token.getAuthToken().equals(authToken)){
                 return token;
@@ -40,7 +39,7 @@ public class MemoryAuthDAO{
         return null;
     }
 
-    public String deleteToken(String authToken) {
+    public String deleteToken(String authToken) throws DataAccessException {
         Iterator<AuthData> iterator = tokensList.iterator();
         while (iterator.hasNext()) {
             AuthData token = iterator.next();
@@ -49,6 +48,6 @@ public class MemoryAuthDAO{
                 return token.getUsername();
             }
         }
-        return null;
+        throw new DataAccessException("Unauthorized");
     }
 }
