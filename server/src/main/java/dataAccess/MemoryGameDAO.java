@@ -4,7 +4,7 @@ import model.GameData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-public class MemoryGameDAO {
+public class MemoryGameDAO implements GameDAO{
     private final HashMap<Integer, GameData> gameMap = new HashMap<>();
 
     public void createGame(GameData game){
@@ -13,11 +13,6 @@ public class MemoryGameDAO {
 
     public GameData readGame(Integer gameID){
         return gameMap.get(gameID);
-    }
-
-    public void updateGame(GameData game){
-        gameMap.remove(game.gameID());
-        gameMap.put(game.gameID(),game);
     }
 
     public void deleteGame(Integer gameID){
