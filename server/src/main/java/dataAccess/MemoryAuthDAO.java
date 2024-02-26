@@ -7,7 +7,6 @@ import java.util.UUID;
 
 public class MemoryAuthDAO{
     private final HashMap<String, AuthData> authMap = new HashMap<>();
-
     public String createAuth(String username){
         UUID uuid = UUID.randomUUID();
         AuthData auth = new AuthData(username, uuid.toString());
@@ -26,5 +25,8 @@ public class MemoryAuthDAO{
 
     public void deleteAuth(String authToken){
         authMap.remove(authToken);
+    }
+    public void deleteAllAuth(){
+        authMap.clear();
     }
 }

@@ -30,7 +30,7 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-//        Spark.delete("/db", this::clear);
+        Spark.delete("/db", this::clearHandler);
         Spark.post("/user", this::registerHandler);
         Spark.delete("/session", this::logoutHandler);
         Spark.post("/session", this::loginHandler);
@@ -42,6 +42,13 @@ public class Server {
         return Spark.port();
     }
 
+    private Object clearHandler(Request req, Response res){
+        gameService.clear();
+        authService.clear();
+        userService.clear();
+        res.status(200);
+        return "{}";
+    }
     private Object registerHandler(Request req, Response res){
         Gson gson = new Gson();
         RegisterRequest request = gson.fromJson(req.body(), RegisterRequest.class);

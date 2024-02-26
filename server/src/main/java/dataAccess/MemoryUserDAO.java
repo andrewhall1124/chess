@@ -22,4 +22,7 @@ public class MemoryUserDAO {
     public void delete (String username){
         userMap.remove(username);
     }
+    public void deleteAllGames(){
+        userMap.clear();
+    }
 }

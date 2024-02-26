@@ -7,6 +7,9 @@ import request.LoginRequest;
 import request.RegisterRequest;
 public class UserService {
     private final MemoryUserDAO userDAO = new MemoryUserDAO();
+    public void clear(){
+        userDAO.deleteAllGames();
+    }
     public String register(RegisterRequest request) throws DataAccessException {
         if(userDAO.readUser(request.username()) != null){
             throw new DataAccessException("error: already taken");
