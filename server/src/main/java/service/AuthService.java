@@ -32,4 +32,11 @@ public class AuthService {
             throw new DataAccessException("error: unauthorized");
         }
     }
+
+    public String getUsername(String authToken) throws DataAccessException{
+        if(authDAO.readAuth(authToken) == null){
+            throw new DataAccessException("error: unauthorized");
+        }
+        return authDAO.readAuth(authToken).username();
+    }
 }
