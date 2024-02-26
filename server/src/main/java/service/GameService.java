@@ -16,7 +16,10 @@ public class GameService {
     public void clear(){
         gameDAO.deleteAllGames();
     }
-    public CreateGameResponse createGame(CreateGameRequest request){
+    public CreateGameResponse createGame(CreateGameRequest request) throws DataAccessException {
+        if(request.gameName() == null){
+            throw new DataAccessException("bad request");
+        }
         Random random = new Random();
         Integer gameID = Math.abs(random.nextInt());
         ChessGame game = new ChessGame();
