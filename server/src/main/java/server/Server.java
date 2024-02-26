@@ -2,34 +2,25 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryGameDAO;
-import dataAccess.MemoryUserDAO;
-import model.GameData;
-import service.UserService;
-import service.GameService;
+import request.RegisterRequest;
+import response.ErrorResponse;
+import response.RegisterResponse;
 import service.AuthService;
+import service.GameService;
+import service.UserService;
 import spark.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 public class Server {
-    private final MemoryUserDAO userDao = new MemoryUserDAO();
-    private final MemoryAuthDAO authDao = new MemoryAuthDAO();
-    private final MemoryGameDAO gameDAO = new MemoryGameDAO();
-    private final GameService gameService = new GameService(gameDAO, authDao);
-    private final UserService userService = new UserService(userDao, authDao);
-    private final AuthService authService = new AuthService(authDao);
-
+    private final UserService userService = new UserService();
+    private final AuthService authService = new AuthService();
+    private final GameService gameService = new GameService();
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
 
 //        Spark.delete("/db", this::clear);
-//        Spark.post("/user", this::register);
+        Spark.post("/user", this::registerHandler);
 //        Spark.post("/session", this::login);
 //        Spark.delete("/session", this::logout);
 //        Spark.get("/game", this::listGames);
@@ -40,7 +31,21 @@ public class Server {
         return Spark.port();
     }
 
-
+    private Object registerHandler(Request req, Response res){
+        Gson gson = new Gson();
+        RegisterRequest request = gson.fromJson(req.body(), RegisterRequest.class);
+        try{
+            String username = userService.register(request);
+            String authToken = authService.register(request);
+            RegisterResponse response = new RegisterResponse(username,authToken);
+            res.status(200);
+            return gson.toJson(response, RegisterResponse.class);
+        }
+        catch(DataAccessException exception){
+            ErrorResponse response = new ErrorResponse(exception.getMessage());
+            return gson.toJson(response, ErrorResponse.class);
+        }
+    }
     public void stop() {
         Spark.stop();
         Spark.awaitStop();

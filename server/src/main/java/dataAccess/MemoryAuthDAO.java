@@ -8,10 +8,11 @@ import java.util.UUID;
 public class MemoryAuthDAO{
     private final HashMap<String, AuthData> authMap = new HashMap<>();
 
-    public void createAuth(String username){
+    public String createAuth(String username){
         UUID uuid = UUID.randomUUID();
         AuthData auth = new AuthData(username, uuid.toString());
         authMap.put(uuid.toString(), auth);
+        return uuid.toString();
     }
 
     public AuthData readAuth(String authToken){
