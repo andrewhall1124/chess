@@ -5,10 +5,7 @@ import dataAccess.DataAccessException;
 import request.CreateGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
-import response.CreateGameResponse;
-import response.ErrorResponse;
-import response.LoginResponse;
-import response.RegisterResponse;
+import response.*;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
@@ -36,7 +33,7 @@ public class Server {
         Spark.post("/user", this::registerHandler);
         Spark.delete("/session", this::logoutHandler);
         Spark.post("/session", this::loginHandler);
-//        Spark.get("/game", this::listGames);
+        Spark.get("/game", this::listGamesHandler);
         Spark.post("/game", this::createGameHandler);
 //        Spark.put("/game", this::joinGame);
 
@@ -101,6 +98,22 @@ public class Server {
             CreateGameResponse response = gameService.createGame(request);
             res.status(200);
             return gson.toJson(response, CreateGameResponse.class);
+        }
+        catch(DataAccessException exception){
+            ErrorResponse response = new ErrorResponse(exception.getMessage());
+            res.status(getStatus(exception.getMessage()));
+            return gson.toJson(response, ErrorResponse.class);
+        }
+    }
+
+    private Object listGamesHandler(Request req, Response res){
+        Gson gson = new Gson();
+        String authToken = req.headers("authorization");
+        try{
+            authService.verify(authToken);
+            ListGamesResponse response = gameService.listGames();
+            res.status(200);
+            return gson.toJson(response, ListGamesResponse.class);
         }
         catch(DataAccessException exception){
             ErrorResponse response = new ErrorResponse(exception.getMessage());

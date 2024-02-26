@@ -1,6 +1,8 @@
 package dataAccess;
 
 import model.GameData;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 public class MemoryGameDAO {
     private final HashMap<String, GameData> gameMap = new HashMap<>();
@@ -20,5 +22,9 @@ public class MemoryGameDAO {
 
     public void deleteGame(String gameID){
         gameMap.remove(gameID);
+    }
+
+    public ArrayList<GameData> readAllGames(){
+        return new ArrayList<>(gameMap.values());
     }
 }
