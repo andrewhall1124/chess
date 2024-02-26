@@ -2,8 +2,10 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
+import request.LoginRequest;
 import request.RegisterRequest;
 import response.ErrorResponse;
+import response.LoginResponse;
 import response.RegisterResponse;
 import service.AuthService;
 import service.GameService;
@@ -30,8 +32,8 @@ public class Server {
 
 //        Spark.delete("/db", this::clear);
         Spark.post("/user", this::registerHandler);
-//        Spark.post("/session", this::login);
-//        Spark.delete("/session", this::logout);
+        Spark.delete("/session", this::logoutHandler);
+        Spark.post("/session", this::loginHandler);
 //        Spark.get("/game", this::listGames);
 //        Spark.post("/game", this::createGame);
 //        Spark.put("/game", this::joinGame);
@@ -49,6 +51,38 @@ public class Server {
             RegisterResponse response = new RegisterResponse(username,authToken);
             res.status(200);
             return gson.toJson(response, RegisterResponse.class);
+        }
+        catch(DataAccessException exception){
+            ErrorResponse response = new ErrorResponse(exception.getMessage());
+            res.status(getStatus(exception.getMessage()));
+            return gson.toJson(response, ErrorResponse.class);
+        }
+    }
+
+    private Object logoutHandler(Request req, Response res){
+        Gson gson = new Gson();
+        String authToken = req.headers("authorization");
+        try{
+            authService.logout(authToken);
+            res.status(200);
+            return "{}";
+        }
+        catch(DataAccessException exception){
+            ErrorResponse response = new ErrorResponse(exception.getMessage());
+            res.status(getStatus(exception.getMessage()));
+            return gson.toJson(response, ErrorResponse.class);
+        }
+    }
+
+    private Object loginHandler(Request req, Response res){
+        Gson gson = new Gson();
+        LoginRequest request = gson.fromJson(req.body(), LoginRequest.class);
+        try{
+            String username = userService.login(request);
+            String authToken = authService.login(request);
+            LoginResponse response = new LoginResponse(username,authToken);
+            res.status(200);
+            return gson.toJson(response, LoginResponse.class);
         }
         catch(DataAccessException exception){
             ErrorResponse response = new ErrorResponse(exception.getMessage());
