@@ -14,6 +14,15 @@ public class Server {
     private final UserService userService = new UserService();
     private final AuthService authService = new AuthService();
     private final GameService gameService = new GameService();
+
+    private int getStatus(String message){
+        switch (message){
+            case "error: bad request": return 400;
+            case "error: unauthorized": return 401;
+            case "error: already taken": return 403;
+            default: return 500;
+        }
+    }
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
@@ -43,6 +52,7 @@ public class Server {
         }
         catch(DataAccessException exception){
             ErrorResponse response = new ErrorResponse(exception.getMessage());
+            res.status(getStatus(exception.getMessage()));
             return gson.toJson(response, ErrorResponse.class);
         }
     }
