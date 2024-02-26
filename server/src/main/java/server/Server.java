@@ -2,8 +2,10 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
+import request.CreateGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
+import response.CreateGameResponse;
 import response.ErrorResponse;
 import response.LoginResponse;
 import response.RegisterResponse;
@@ -35,7 +37,7 @@ public class Server {
         Spark.delete("/session", this::logoutHandler);
         Spark.post("/session", this::loginHandler);
 //        Spark.get("/game", this::listGames);
-//        Spark.post("/game", this::createGame);
+        Spark.post("/game", this::createGameHandler);
 //        Spark.put("/game", this::joinGame);
 
         Spark.awaitInitialization();
@@ -83,6 +85,22 @@ public class Server {
             LoginResponse response = new LoginResponse(username,authToken);
             res.status(200);
             return gson.toJson(response, LoginResponse.class);
+        }
+        catch(DataAccessException exception){
+            ErrorResponse response = new ErrorResponse(exception.getMessage());
+            res.status(getStatus(exception.getMessage()));
+            return gson.toJson(response, ErrorResponse.class);
+        }
+    }
+    private Object createGameHandler(Request req, Response res){
+        Gson gson = new Gson();
+        CreateGameRequest request = gson.fromJson(req.body(), CreateGameRequest.class);
+        String authToken = req.headers("authorization");
+        try{
+            authService.verify(authToken);
+            CreateGameResponse response = gameService.createGame(request);
+            res.status(200);
+            return gson.toJson(response, CreateGameResponse.class);
         }
         catch(DataAccessException exception){
             ErrorResponse response = new ErrorResponse(exception.getMessage());

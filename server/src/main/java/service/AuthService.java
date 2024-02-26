@@ -26,4 +26,10 @@ public class AuthService {
     public String login(LoginRequest request){
         return authDAO.createAuth(request.username());
     }
+
+    public void verify(String authToken) throws DataAccessException {
+        if(authDAO.readAuth(authToken) == null){
+            throw new DataAccessException("error: unauthorized");
+        }
+    }
 }
