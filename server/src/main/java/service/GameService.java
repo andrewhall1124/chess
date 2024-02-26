@@ -1,16 +1,14 @@
 package service;
 
 import chess.ChessGame;
+import dataAccess.DataAccessException;
 import dataAccess.MemoryGameDAO;
 import model.GameData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import response.CreateGameResponse;
 import response.ListGamesResponse;
-
-import java.util.Objects;
 import java.util.Random;
-import java.util.UUID;
 
 public class GameService {
     private final MemoryGameDAO gameDAO = new MemoryGameDAO();
@@ -20,9 +18,9 @@ public class GameService {
     }
     public CreateGameResponse createGame(CreateGameRequest request){
         Random random = new Random();
-        Integer gameID = random.nextInt();
+        Integer gameID = Math.abs(random.nextInt());
         ChessGame game = new ChessGame();
-        GameData gameData = new GameData(gameID,"","", request.gameName(),game);
+        GameData gameData = new GameData(gameID,null,null, request.gameName(),game);
         gameDAO.createGame(gameData);
         return  new CreateGameResponse(gameID);
     }
@@ -31,16 +29,27 @@ public class GameService {
         return new ListGamesResponse(gameDAO.readAllGames());
     }
 
-    public void joinGame(JoinGameRequest request, String username){
-        String playerColor = request.playerColor();
-        Integer gameID = request.gameID();
-        GameData oldGame = gameDAO.readGame(gameID);
-        String whiteUserName = playerColor.equals("WHITE") ? username : oldGame.whiteUserName();
-        String blackUserName = playerColor.equals("BLACK") ? username : oldGame.blackUserName();
-        String gameName = oldGame.gameName();
-        ChessGame game = oldGame.game();
-        GameData newGame = new GameData(gameID,whiteUserName,blackUserName,gameName,game);
-        gameDAO.deleteGame(gameID);
-        gameDAO.createGame(newGame);
+    public void joinGame(JoinGameRequest request, String username) throws DataAccessException {
+        if(gameDAO.readGame(request.gameID()) == null){
+            throw new DataAccessException("error: bad request");
+        }
+        if(request.playerColor() != null){
+            Integer gameID = request.gameID();
+            GameData oldGame = gameDAO.readGame(gameID);
+            if(request.playerColor().equals("WHITE") && oldGame.whiteUsername() != null){
+                throw new DataAccessException("error: already taken");
+            }
+            if(request.playerColor().equals("BLACK") && oldGame.blackUsername() != null){
+                throw new DataAccessException("error: already taken");
+            }
+            String playerColor = request.playerColor();
+            String whiteUserName = playerColor.equals("WHITE") ? username : oldGame.whiteUsername();
+            String blackUserName = playerColor.equals("BLACK") ? username : oldGame.blackUsername();
+            String gameName = oldGame.gameName();
+            ChessGame game = oldGame.game();
+            GameData newGame = new GameData(gameID,whiteUserName,blackUserName,gameName,game);
+            gameDAO.deleteGame(gameID);
+            gameDAO.createGame(newGame);
+        }
     }
 }

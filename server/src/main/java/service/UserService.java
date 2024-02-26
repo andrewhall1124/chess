@@ -14,6 +14,9 @@ public class UserService {
         if(userDAO.readUser(request.username()) != null){
             throw new DataAccessException("error: already taken");
         }
+        if(request.username() == null || request.password() == null || request.email() == null){
+            throw new DataAccessException("error: bad request");
+        }
         UserData user = new UserData(request.username(), request.password(), request.email());
         userDAO.createUser(user);
         return user.username();
