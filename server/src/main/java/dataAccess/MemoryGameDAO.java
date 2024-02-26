@@ -13,6 +13,11 @@ public class MemoryGameDAO {
         return gameMap.get(gameID);
     }
 
+    public void updateGame(GameData game){
+        gameMap.remove(game.gameID());
+        gameMap.put(game.gameID(),game);
+    }
+
     public void deleteGame(String gameID){
         gameMap.remove(gameID);
     }

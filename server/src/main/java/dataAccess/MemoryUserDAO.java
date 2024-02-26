@@ -14,6 +14,11 @@ public class MemoryUserDAO {
         return userMap.get(username);
     }
 
+    public void updateUser(UserData user){
+        userMap.remove(user.username());
+        userMap.put(user.username(), user);
+    }
+
     public void delete (String username){
         userMap.remove(username);
     }

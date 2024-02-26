@@ -10,12 +10,17 @@ public class MemoryAuthDAO{
 
     public void createAuth(String username){
         UUID uuid = UUID.randomUUID();
-        AuthData newAuth = new AuthData(username, uuid.toString());
-        authMap.put(uuid.toString(), newAuth);
+        AuthData auth = new AuthData(username, uuid.toString());
+        authMap.put(uuid.toString(), auth);
     }
 
     public AuthData readAuth(String authToken){
         return authMap.get(authToken);
+    }
+
+    public void updateAuth(AuthData auth){
+        authMap.remove(auth.authToken());
+        authMap.put(auth.username(),auth);
     }
 
     public void deleteAuth(String authToken){
