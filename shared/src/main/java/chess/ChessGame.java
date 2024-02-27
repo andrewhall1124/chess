@@ -153,7 +153,7 @@ public class ChessGame {
                 }
             }
             else{
-                throw new InvalidMoveException("End position not allowed");
+//                throw new InvalidMoveException("End position not allowed");
             }
         }
         else{
