@@ -24,14 +24,7 @@ public class KnightMoves {
             int newRow = myPosition.getRow() + offset[0];
             int newCol = myPosition.getColumn() + offset[1];
 
-            if (newRow >= 1 && newRow <= 8 && newCol >= 1 && newCol <= 8) {
-                ChessPosition currentPosition = new ChessPosition(newRow, newCol);
-                if (board.getPiece(currentPosition) == null ||
-                        board.getPiece(currentPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
-                    ChessMove possibleMove = new ChessMove(myPosition, currentPosition, null);
-                    moveList.add(possibleMove);
-                }
-            }
+            ChessUtils.addPossibleMoveIfValid(moveList,board,myPosition,newRow,newCol);
         }
 
         return moveList;
