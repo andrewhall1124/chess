@@ -3,16 +3,17 @@ package service;
 import dataAccess.DataAccessException;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryGameDAO;
+import dataAccess.SQLAuthDAO;
 import request.LoginRequest;
 import request.RegisterRequest;
 
 public class AuthService {
-    private final MemoryAuthDAO authDAO = new MemoryAuthDAO();
+    private final SQLAuthDAO authDAO = new SQLAuthDAO();
 
-    public void clear(){
+    public void clear() throws DataAccessException{
         authDAO.deleteAllAuth();
     }
-    public String register(RegisterRequest request){
+    public String register(RegisterRequest request) throws DataAccessException{
         return authDAO.createAuth(request.username());
     }
 
@@ -25,7 +26,7 @@ public class AuthService {
         }
     }
 
-    public String login(LoginRequest request){
+    public String login(LoginRequest request) throws DataAccessException{
         return authDAO.createAuth(request.username());
     }
 
