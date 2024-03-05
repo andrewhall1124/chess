@@ -4,6 +4,7 @@ import dataAccess.DataAccessException;
 import dataAccess.MemoryUserDAO;
 import dataAccess.SQLUserDAO;
 import model.UserData;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import request.LoginRequest;
 import request.RegisterRequest;
 public class UserService {
@@ -27,8 +28,11 @@ public class UserService {
         if(userDAO.readUser(request.username()) == null){
             throw new DataAccessException("error: unauthorized");
         }
-        String password = userDAO.readUser(request.username()).password();
-        if(!request.password().equals(password)){
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hashedPassword = userDAO.readUser(request.username()).password();
+
+        if(!encoder.matches(request.password(), hashedPassword)){
             throw new DataAccessException("error: unauthorized");
         }
         return userDAO.readUser(request.username()).username();
