@@ -2,7 +2,7 @@ package service;
 
 import chess.ChessGame;
 import dataAccess.DataAccessException;
-import dataAccess.MemoryGameDAO;
+import dataAccess.SQLGameDAO;
 import model.GameData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
@@ -11,9 +11,9 @@ import response.ListGamesResponse;
 import java.util.Random;
 
 public class GameService {
-    private final MemoryGameDAO gameDAO = new MemoryGameDAO();
+    private final SQLGameDAO gameDAO = new SQLGameDAO();
 
-    public void clear(){
+    public void clear() throws DataAccessException{
         gameDAO.deleteAllGames();
     }
     public CreateGameResponse createGame(CreateGameRequest request) throws DataAccessException {
@@ -28,7 +28,7 @@ public class GameService {
         return  new CreateGameResponse(gameID);
     }
 
-    public ListGamesResponse listGames(){
+    public ListGamesResponse listGames() throws DataAccessException{
         return new ListGamesResponse(gameDAO.readAllGames());
     }
 
