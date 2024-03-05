@@ -1,30 +1,49 @@
 package dataAccess;
-
-public class SQLUserDAO {
-    public SQLUserDAO() throws Exception {
-        configureDatabase();
-    }
-    private void configureDatabase() throws Exception {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
+import model.UserData;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+public class SQLUserDAO implements UserDAO{
+    public void createUser(UserData user) throws DataAccessException{
+        try (Connection conn = DatabaseManager.getConnection()) {
+            String sql = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+            try (var statement = conn.prepareStatement(sql)) {
+                statement.setString(1,user.username());
+                statement.setString(2,user.password());
+                statement.setString(3,user.email());
+                statement.executeUpdate();
             }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
         }
     }
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS  user (
-              `id` int NOT NULL AUTO_INCREMENT,
-              `name` varchar(256) NOT NULL,
-              `type` ENUM('CAT', 'DOG', 'FISH', 'FROG', 'ROCK') DEFAULT 'CAT',
-              `json` TEXT DEFAULT NULL,
-              PRIMARY KEY (`id`),
-              INDEX(type),
-              INDEX(name)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
-    };
+    public UserData readUser(String username) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            String sql = "SELECT * FROM user WHERE username = ?";
+            try (var statement = conn.prepareStatement(sql)) {
+                statement.setString(1,username);
+                ResultSet rs = statement.executeQuery();
+                if(rs.next()){
+                    return new UserData(
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("email")
+                    );
+                }
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+    public void deleteAllUsers() throws DataAccessException{
+        try (Connection conn = DatabaseManager.getConnection()) {
+            String sql = "DELETE FROM user";
+            try (var statement = conn.prepareStatement(sql)) {
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
 }

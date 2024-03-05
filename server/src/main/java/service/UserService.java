@@ -2,13 +2,14 @@ package service;
 
 import dataAccess.DataAccessException;
 import dataAccess.MemoryUserDAO;
+import dataAccess.SQLUserDAO;
 import model.UserData;
 import request.LoginRequest;
 import request.RegisterRequest;
 public class UserService {
-    private final MemoryUserDAO userDAO = new MemoryUserDAO();
-    public void clear(){
-        userDAO.deleteAllGames();
+    private final SQLUserDAO userDAO = new SQLUserDAO();
+    public void clear() throws DataAccessException  {
+        userDAO.deleteAllUsers();
     }
     public String register(RegisterRequest request) throws DataAccessException {
         if(userDAO.readUser(request.username()) != null){

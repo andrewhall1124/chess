@@ -13,7 +13,7 @@ public class MemoryUserDAO implements UserDAO{
     public UserData readUser(String username){
         return userMap.get(username);
     }
-    public void deleteAllGames(){
+    public void deleteAllUsers(){
         userMap.clear();
     }
 }
