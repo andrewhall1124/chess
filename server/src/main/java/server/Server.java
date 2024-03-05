@@ -12,7 +12,7 @@ import service.GameService;
 import service.UserService;
 import spark.*;
 
-public class Server {
+public class Server{
     private final UserService userService = new UserService();
     private final AuthService authService = new AuthService();
     private final GameService gameService = new GameService();
@@ -43,11 +43,20 @@ public class Server {
     }
 
     private Object clearHandler(Request req, Response res){
-        gameService.clear();
-        authService.clear();
-        userService.clear();
-        res.status(200);
-        return "{}";
+        Gson gson = new Gson();
+        try{
+            gameService.clear();
+            authService.clear();
+            userService.clear();
+            res.status(200);
+            return "{}";
+        }
+        catch(DataAccessException exception){
+            ErrorResponse response = new ErrorResponse(exception.getMessage());
+            res.status(getStatus(exception.getMessage()));
+            return gson.toJson(response, ErrorResponse.class);
+        }
+
     }
     private Object registerHandler(Request req, Response res){
         Gson gson = new Gson();
