@@ -122,10 +122,9 @@ public class MyDataAccessTest {
     }
 
     @Test
-    public void badReadUser() {
-        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
-            userDAO.readUser("bad username");
-        });
+    public void badReadUser() throws DataAccessException{
+        UserData userData = userDAO.readUser("bad username");
+        assertNull(userData);
     }
 
     @Test
@@ -134,10 +133,9 @@ public class MyDataAccessTest {
     }
 
     @Test
-    public void badReadAuth() {
-        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
-            authDAO.readAuth("bad token");
-        });
+    public void badReadAuth() throws DataAccessException{
+        AuthData authData = authDAO.readAuth("bad token");
+        assertNull(authData);
     }
 
     @Test
@@ -148,10 +146,9 @@ public class MyDataAccessTest {
         });
     }
     @Test
-    public void badReadGame() {
-        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
-            gameDAO.readGame(1);
-        });
+    public void badReadGame() throws DataAccessException{
+        GameData gameData = gameDAO.readGame(1);
+        assertNull(gameData);
     }
 
     @Test
