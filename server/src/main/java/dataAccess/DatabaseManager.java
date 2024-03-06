@@ -25,8 +25,8 @@ public class DatabaseManager {
                 var host = props.getProperty("db.host");
                 var port = Integer.parseInt(props.getProperty("db.port"));
                 connectionUrl = String.format("jdbc:mysql://%s:%d", host, port);
-//                createDatabase();
-//                configureDatabase();
+                createDatabase();
+                configureDatabase();
             }
         } catch (Exception ex) {
             throw new RuntimeException("unable to process db.properties. " + ex.getMessage());
@@ -37,6 +37,7 @@ public class DatabaseManager {
      * Creates the database if it does not already exist.
      */
     static void createDatabase() throws DataAccessException {
+        System.out.println("Fired create database");
         try {
             var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
             var conn = DriverManager.getConnection(connectionUrl, user, password);
@@ -70,37 +71,36 @@ public class DatabaseManager {
         }
     }
 
-    static final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS  user (
-              `username` varchar(256) NOT NULL,
-              `password` varchar(256) NOT NULL,
-              `email` varchar(256) NOT NULL,
-              PRIMARY KEY (`username`),
-            )
-            """,
-            """
-            CREATE TABLE IF NOT EXISTS  auth (
-              `username` varchar(256) NOT NULL,
-              `authToken` varchar(256) NOT NULL,
-              PRIMARY KEY (`authToken`),
-            )
-            """,
-            """
-            CREATE TABLE IF NOT EXISTS  game (
-              `gameID` int NOT NULL,
-              `whiteUsername` varchar(256),
-              `blackUsername` varchar(256),
-              `gameName` varchar(256),
-              `game` json,
-              PRIMARY KEY (`gameID`),
-            )
-            """
-    };
-
     static void configureDatabase() throws Exception {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
+        String[] createStatements = {
+                """
+            CREATE TABLE IF NOT EXISTS  user (
+              username varchar(256) NOT NULL,
+              password varchar(256) NOT NULL,
+              email varchar(256) NOT NULL,
+              PRIMARY KEY (username)
+            )
+            """,
+                """
+            CREATE TABLE IF NOT EXISTS  auth (
+              username varchar(256) NOT NULL,
+              authToken varchar(256) NOT NULL,
+              PRIMARY KEY (authToken)
+            )
+            """,
+                """
+            CREATE TABLE IF NOT EXISTS  game (
+              gameID int NOT NULL,
+              whiteUsername varchar(256),
+              blackUsername varchar(256),
+              gameName varchar(256),
+              game json,
+              PRIMARY KEY (gameID)
+            )
+            """
+        };
+        System.out.println("Fired configure database");
+        try (var conn = getConnection()) {
             for (var statement : createStatements) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
