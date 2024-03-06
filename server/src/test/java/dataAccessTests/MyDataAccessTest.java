@@ -11,7 +11,6 @@ import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import request.RegisterRequest;
 
 import java.util.ArrayList;
 
@@ -129,13 +128,10 @@ public class MyDataAccessTest {
         });
     }
 
-//    @Test
-//    public void badCreateAuth() {
-//        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
-//            authDAO.createAuth(userData.username());
-//            authDAO.createAuth(userData.username());
-//        });
-//    }
+    @Test
+    public void badCreateAuth() throws DataAccessException{
+        authDAO.createAuth(userData.username());
+    }
 
     @Test
     public void badReadAuth() {
@@ -144,12 +140,13 @@ public class MyDataAccessTest {
         });
     }
 
-//    @Test
-//    public void badCreateGame() {
-//        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
-//            gameDAO.createGame(new GameData(0,"","","", new ChessGame()));
-//        });
-//    }
+    @Test
+    public void badCreateGame() {
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
+            gameDAO.createGame(gameOne);
+            gameDAO.createGame(gameOne);
+        });
+    }
     @Test
     public void badReadGame() {
         DataAccessException exception = assertThrows(DataAccessException.class, () -> {
@@ -157,10 +154,11 @@ public class MyDataAccessTest {
         });
     }
 
-//    @Test
-//    public void badReadAllGames() {
-//        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
-//        });
-//    }
+    @Test
+    public void badReadAllGames() throws DataAccessException {
+        ArrayList<GameData> resGameList = gameDAO.readAllGames();
+        ArrayList<GameData> gameList = new ArrayList<>();
+        assertEquals(gameList,resGameList);
+    }
 
 }

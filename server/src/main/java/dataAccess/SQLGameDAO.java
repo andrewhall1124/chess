@@ -80,7 +80,7 @@ public class SQLGameDAO implements GameDAO{
                 if(!gameList.isEmpty()){
                     return gameList;
                 }
-                return null;
+                return new ArrayList<>();
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
