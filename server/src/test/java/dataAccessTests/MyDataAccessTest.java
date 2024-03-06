@@ -158,4 +158,26 @@ public class MyDataAccessTest {
         assertEquals(gameList,resGameList);
     }
 
+    @Test
+    public void badDeleteAllGames() throws DataAccessException{
+        gameDAO.deleteAllGames();
+        ArrayList<GameData> gamesList = gameDAO.readAllGames();
+        assertEquals(new ArrayList<>(), gamesList);
+    }
+
+    @Test
+    public void badDeleteAllUsers() throws DataAccessException{
+        userDAO.deleteAllUsers();
+        UserData user = userDAO.readUser(userData.username());
+        assertNull(user);
+
+    }
+
+    @Test
+    public void badDeleteAllAuth() throws DataAccessException{
+        authDAO.deleteAllAuth();
+        AuthData authData = authDAO.readAuth("invalid token");
+        assertNull(authData);
+    }
+
 }
