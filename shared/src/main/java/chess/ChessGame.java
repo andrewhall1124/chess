@@ -2,6 +2,7 @@ package chess;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -10,7 +11,7 @@ import java.util.HashSet;
  * signature of the existing methods.
  */
 public class ChessGame {
-    private ChessBoard board;
+    private ChessBoard board = new ChessBoard();
     private TeamColor teamTurn = TeamColor.WHITE;
 
     private ChessPosition getKingPosition(TeamColor teamColor){
@@ -75,7 +76,7 @@ public class ChessGame {
     }
 
     public ChessGame() {
-
+        board.resetBoard();
     }
 
     /**
@@ -275,5 +276,25 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return this.board;
+    }
+
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "board=" + board +
+                ", teamTurn=" + teamTurn +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ChessGame chessGame)) return false;
+        return Objects.equals(board, chessGame.board) && teamTurn == chessGame.teamTurn;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(board, teamTurn);
     }
 }

@@ -10,16 +10,17 @@ import java.util.ArrayList;
 
 public class SQLGameDAO implements GameDAO{
     public void createGame(GameData game) throws DataAccessException {
-        Gson gson = new Gson();
         try (Connection conn = DatabaseManager.getConnection()) {
             String sql = "INSERT INTO game (gameID,whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
             try (var statement = conn.prepareStatement(sql)) {
-                String chessGame = gson.toJson(game.game()); //Serialize chess game
+                String json = new Gson().toJson(game.game());
+                System.out.println(game.game());
+                System.out.println(json);
                 statement.setString(1, game.gameID().toString());
                 statement.setString(2, game.whiteUsername());
                 statement.setString(3, game.blackUsername());
                 statement.setString(4, game.gameName());
-                statement.setString(5, chessGame);
+                statement.setString(5, json);
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -35,7 +36,8 @@ public class SQLGameDAO implements GameDAO{
                 statement.setString(1,gameID.toString());
                 ResultSet rs = statement.executeQuery();
                 if(rs.next()){
-                    ChessGame chessGame = gson.fromJson(rs.getString("game"), ChessGame.class);
+                    var serializer = new Gson();
+                    var chessGame = serializer.fromJson(rs.getString("game"), ChessGame.class);
                     return new GameData(
                             Integer.parseInt(rs.getString("gameID")),
                             rs.getString("whiteUsername"),
