@@ -14,8 +14,6 @@ public class SQLGameDAO implements GameDAO{
             String sql = "INSERT INTO game (gameID,whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
             try (var statement = conn.prepareStatement(sql)) {
                 String json = new Gson().toJson(game.game());
-                System.out.println(game.game());
-                System.out.println(json);
                 statement.setString(1, game.gameID().toString());
                 statement.setString(2, game.whiteUsername());
                 statement.setString(3, game.blackUsername());
@@ -29,15 +27,13 @@ public class SQLGameDAO implements GameDAO{
     }
 
     public GameData readGame(Integer gameID) throws DataAccessException {
-        Gson gson = new Gson();
         try (Connection conn = DatabaseManager.getConnection()) {
             String sql = "SELECT * FROM game WHERE gameID = ?";
             try (var statement = conn.prepareStatement(sql)) {
                 statement.setString(1,gameID.toString());
                 ResultSet rs = statement.executeQuery();
                 if(rs.next()){
-                    var serializer = new Gson();
-                    var chessGame = serializer.fromJson(rs.getString("game"), ChessGame.class);
+                    ChessGame chessGame = new Gson().fromJson(rs.getString("game"), ChessGame.class);
                     return new GameData(
                             Integer.parseInt(rs.getString("gameID")),
                             rs.getString("whiteUsername"),
@@ -46,7 +42,7 @@ public class SQLGameDAO implements GameDAO{
                            chessGame
                     );
                 }
-                return null;
+                throw new DataAccessException("gameID not recognized");
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
@@ -66,14 +62,13 @@ public class SQLGameDAO implements GameDAO{
     }
 
     public ArrayList<GameData> readAllGames() throws DataAccessException {
-        Gson gson = new Gson();
         try (Connection conn = DatabaseManager.getConnection()) {
             String sql = "SELECT * FROM game";
             try (var statement = conn.prepareStatement(sql)) {
                 ResultSet rs = statement.executeQuery();
                 ArrayList<GameData> gameList = new ArrayList<>();
                 while(rs.next()){
-                    ChessGame chessGame = gson.fromJson(rs.getString("game"), ChessGame.class);
+                    ChessGame chessGame = new Gson().fromJson(rs.getString("game"), ChessGame.class);
                     gameList.add(new GameData(
                             Integer.parseInt(rs.getString("gameID")),
                             rs.getString("whiteUsername"),

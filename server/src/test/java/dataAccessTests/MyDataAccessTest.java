@@ -11,10 +11,11 @@ import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import request.RegisterRequest;
 
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MyDataAccessTest {
     private final SQLUserDAO userDAO = new SQLUserDAO();
@@ -30,16 +31,6 @@ public class MyDataAccessTest {
 
     @BeforeEach
     public void setup() throws DataAccessException{
-        userDAO.deleteAllUsers();
-        gameDAO.deleteAllGames();
-        authDAO.deleteAllAuth();
-    }
-
-    @Test
-    public void clearTest() throws DataAccessException {
-        userDAO.createUser(userData);
-        gameDAO.createGame(gameOne);
-        authDAO.createAuth(userData.username());
         userDAO.deleteAllUsers();
         gameDAO.deleteAllGames();
         authDAO.deleteAllAuth();
@@ -122,4 +113,54 @@ public class MyDataAccessTest {
         authDAO.createAuth(userData.username());
         authDAO.deleteAllAuth();
     }
+
+    @Test
+    public void badCreateUser() {
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
+            userDAO.createUser(userData);
+            userDAO.createUser(userData);
+        });
+    }
+
+    @Test
+    public void badReadUser() {
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
+            userDAO.readUser("bad username");
+        });
+    }
+
+//    @Test
+//    public void badCreateAuth() {
+//        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
+//            authDAO.createAuth(userData.username());
+//            authDAO.createAuth(userData.username());
+//        });
+//    }
+
+    @Test
+    public void badReadAuth() {
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
+            authDAO.readAuth("bad token");
+        });
+    }
+
+//    @Test
+//    public void badCreateGame() {
+//        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
+//            gameDAO.createGame(new GameData(0,"","","", new ChessGame()));
+//        });
+//    }
+    @Test
+    public void badReadGame() {
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
+            gameDAO.readGame(1);
+        });
+    }
+
+//    @Test
+//    public void badReadAllGames() {
+//        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
+//        });
+//    }
+
 }

@@ -34,7 +34,7 @@ public class SQLAuthDAO implements AuthDAO{
                             rs.getString("authToken")
                     );
                 }
-                return null;
+                throw new DataAccessException("unrecognized authToken");
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
