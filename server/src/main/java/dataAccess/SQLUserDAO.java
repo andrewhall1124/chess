@@ -34,7 +34,7 @@ public class SQLUserDAO implements UserDAO{
                         rs.getString("email")
                     );
                 }
-                throw new DataAccessException("username not recognized");
+                return null;
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());

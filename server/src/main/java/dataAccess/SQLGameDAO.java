@@ -42,7 +42,7 @@ public class SQLGameDAO implements GameDAO{
                            chessGame
                     );
                 }
-                throw new DataAccessException("gameID not recognized");
+                return null;
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());

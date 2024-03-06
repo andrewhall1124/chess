@@ -25,6 +25,8 @@ public class DatabaseManager {
                 var host = props.getProperty("db.host");
                 var port = Integer.parseInt(props.getProperty("db.port"));
                 connectionUrl = String.format("jdbc:mysql://%s:%d", host, port);
+//                createDatabase();
+//                configureDatabase();
             }
         } catch (Exception ex) {
             throw new RuntimeException("unable to process db.properties. " + ex.getMessage());
@@ -65,6 +67,47 @@ public class DatabaseManager {
             return conn;
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    static final String[] createStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS  user (
+              `username` varchar(256) NOT NULL,
+              `password` varchar(256) NOT NULL,
+              `email` varchar(256) NOT NULL,
+              PRIMARY KEY (`username`),
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS  auth (
+              `username` varchar(256) NOT NULL,
+              `authToken` varchar(256) NOT NULL,
+              PRIMARY KEY (`authToken`),
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS  game (
+              `gameID` int NOT NULL,
+              `whiteUsername` varchar(256),
+              `blackUsername` varchar(256),
+              `gameName` varchar(256),
+              `game` json,
+              PRIMARY KEY (`gameID`),
+            )
+            """
+    };
+
+    static void configureDatabase() throws Exception {
+        DatabaseManager.createDatabase();
+        try (var conn = DatabaseManager.getConnection()) {
+            for (var statement : createStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (SQLException ex) {
+            throw new Exception(ex.getMessage());
         }
     }
 }
