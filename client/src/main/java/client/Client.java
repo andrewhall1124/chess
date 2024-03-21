@@ -5,8 +5,10 @@ import java.util.HashMap;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
+import request.CreateGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
+import response.CreateGameResponse;
 import response.LoginResponse;
 import response.RegisterResponse;
 import server.ServerFacade;
@@ -31,7 +33,7 @@ public class Client {
                 case "register" -> register(params);
                 case "login" -> login(params);
                 case "logout" -> logout();
-//                case "create" -> signIn(params);
+                case "create" -> createGame(params);
 //                case "list" -> signIn();
 //                case "join" -> signIn(params);
 //                case "observe" -> signIn(params);
@@ -83,9 +85,20 @@ public class Client {
     }
 
     public String logout() throws ResponseException {
+        assertSignedIn();
         server.logout(authToken);
         authToken = null;
         return "Logged out";
+    }
+
+    public String createGame(String ...params) throws ResponseException {
+        assertSignedIn();
+        if(params.length >= 1){
+            CreateGameRequest request = new CreateGameRequest(params[0]);
+            CreateGameResponse response = server.createGame(request, authToken);
+            return String.format("Game ID: %s.", response.gameID());
+        }
+        throw new ResponseException(400, "Expected: <name>");
     }
 
     private void assertSignedIn() throws ResponseException {

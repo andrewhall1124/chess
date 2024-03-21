@@ -2,8 +2,10 @@ package server;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
+import request.CreateGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
+import response.CreateGameResponse;
 import response.LoginResponse;
 import response.RegisterResponse;
 
@@ -31,6 +33,11 @@ public class ServerFacade {
     public void logout(String authToken) throws ResponseException {
         var path ="/session";
         this.makeRequest("DELETE", path, null, null, authToken);
+    }
+
+    public CreateGameResponse createGame(CreateGameRequest request, String authToken) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("POST", path, request, CreateGameResponse.class, authToken);
     }
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
         try {
