@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import exception.ResponseException;
 import model.GameData;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import response.CreateGameResponse;
@@ -16,14 +17,13 @@ import response.RegisterResponse;
 import server.ServerFacade;
 
 public class Client {
-    private String visitorName = null;
     private final ServerFacade server;
-    private final String serverUrl;
     private String authToken;
+
+    private HashMap<Integer, GameData> gameList = new HashMap<>();
 
     public Client(String serverUrl) {
         server = new ServerFacade(serverUrl);
-        this.serverUrl = serverUrl;
     }
 
     public String eval(String input) {
@@ -37,7 +37,7 @@ public class Client {
                 case "logout" -> logout();
                 case "create" -> createGame(params);
                 case "list" -> list();
-//                case "join" -> join(params);
+                case "join" -> join(params);
 //                case "observe" -> observe(params);
                 case "quit" -> "quit";
                 default -> help();
@@ -105,10 +105,12 @@ public class Client {
 
     public String list() throws ResponseException{
         assertSignedIn();
+        gameList.clear();
         ListGamesResponse response = server.list(authToken);
         StringBuilder result = new StringBuilder();
         var count = 1;
         for(GameData game : response.games()){
+            gameList.put(count,game);
             result.append(String.format("%s. ",count));
             result.append(String.format("%s\n",game.gameName()));
             result.append(String.format("    White: %s\n",game.whiteUsername()));
@@ -117,6 +119,16 @@ public class Client {
             count ++;
         }
         return result.toString();
+    }
+
+    public String join(String ...params) throws ResponseException{
+        assertSignedIn();
+        if(params.length >= 1){
+            JoinGameRequest request = new JoinGameRequest(params[1].toUpperCase(),gameList.get(Integer.parseInt(params[0])).gameID());
+            server.join(request,authToken);
+            return String.format("Joined %s", gameList.get(Integer.parseInt(params[0])).gameName());
+        }
+        throw new ResponseException(400, "Expected: <ID> [WHITE | BLACK | empty]");
     }
 
     private void assertSignedIn() throws ResponseException {
