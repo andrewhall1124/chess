@@ -45,7 +45,6 @@ public class Client {
                 case "list" -> list();
                 case "join" -> join(params);
                 case "observe" -> observe(params);
-                case "draw" -> drawBoard();
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -130,13 +129,15 @@ public class Client {
 
     public String join(String ...params) throws ResponseException{
         assertSignedIn();
-        if(params.length >= 1){
+        if(params.length >= 2){
             Integer gameID = Integer.parseInt(params[0]);
             JoinGameRequest request = new JoinGameRequest(params[1].toUpperCase(),gameList.get(gameID).gameID());
             server.join(request,authToken);
             StringBuilder result = new StringBuilder();
-            result.append(String.format("Joined %s", gameList.get(Integer.parseInt(params[0])).gameName()));
-//            result.append(drawBoard(gameList.get(gameID).game().getBoard()));
+            GameData game = gameList.get(gameID);
+            result.append(String.format("Joined %s\n", gameList.get(gameID).gameName()));
+            result.append(drawWhiteBoard(game.game().getBoard())).append("\n");
+            result.append(drawBlackBoard(game.game().getBoard())).append("\n");
             return result.toString();
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE | BLACK | empty]");
@@ -145,18 +146,25 @@ public class Client {
     public String observe(String ...params) throws ResponseException{
         assertSignedIn();
         if(params.length >= 1){
-            JoinGameRequest request = new JoinGameRequest("",gameList.get(Integer.parseInt(params[0])).gameID());
+            Integer gameID = Integer.parseInt(params[0]);
+            JoinGameRequest request = new JoinGameRequest("",gameList.get(gameID).gameID());
             server.join(request,authToken);
-            return String.format("Observing %s", gameList.get(Integer.parseInt(params[0])).gameName());
+            GameData game = gameList.get(gameID);
+            StringBuilder result = new StringBuilder();
+            result.append(String.format("Observing %s\n", game.gameName()));
+            result.append(drawWhiteBoard(game.game().getBoard()) + "\n");
+            result.append(drawBlackBoard(game.game().getBoard()) + "\n");
+            return result.toString();
         }
         throw new ResponseException(400, "Expected: <ID>");
     }
 
-    public String drawBoard(){
-        ChessBoard board = gameList.get(1).game().getBoard();
+    public String drawWhiteBoard(ChessBoard board){
         StringBuilder result = new StringBuilder();
         String letters = "ABCDEFGH";
         String numbers = "12345678";
+
+        //Top border
         result.append( SET_BG_COLOR_BLACK + EMPTY);
         for(char letter : letters.toCharArray()) {
             result.append(SET_BG_COLOR_BLACK);
@@ -165,8 +173,10 @@ public class Client {
         }
         result.append( SET_BG_COLOR_BLACK + EMPTY);
         result.append(RESET_ALL + "\n");
+        //Pieces + main board
         for(int i = 1; i <= 8; i++){
             for(int j = 1; j <= 8; j++){
+                //Left border numbers
                 if(j == 1){
                     result.append(SET_BG_COLOR_BLACK);
                     result.append(SET_TEXT_COLOR_WHITE);
@@ -178,6 +188,7 @@ public class Client {
                 } else{
                     result.append(SET_BG_COLOR_DARK_GREY);
                 }
+                //Color pieces
                 ChessPosition curPos = new ChessPosition(i, j);
                 ChessPiece curPiece = board.getPiece(curPos);
                 if(curPiece != null){
@@ -190,10 +201,67 @@ public class Client {
                     result.append(SET_BG_COLOR_BLACK + EMPTY);
                 }
             }
+            //Reset
             result.append(RESET_ALL);
             result.append(RESET_TEXT_COLOR);
             result.append("\n");
         }
+        //Bottom border
+        for(int i = 1; i <= 10; i++){
+            result.append(SET_BG_COLOR_BLACK + EMPTY);
+        }
+        result.append(RESET_ALL);
+        return result.toString();
+    }
+
+    public String drawBlackBoard(ChessBoard board){
+        StringBuilder result = new StringBuilder();
+        String letters = "HGFEDCBA";
+        String numbers = "87654321";
+
+        //Top border
+        result.append( SET_BG_COLOR_BLACK + EMPTY);
+        for(char letter : letters.toCharArray()) {
+            result.append(SET_BG_COLOR_BLACK);
+            result.append(SET_TEXT_COLOR_WHITE);
+            result.append(String.format("\u2003%s ", letter));
+        }
+        result.append( SET_BG_COLOR_BLACK + EMPTY);
+        result.append(RESET_ALL + "\n");
+        //Pieces + main board
+        for(int i = 8; i > 0; i--){
+            for(int j = 8; j > 0; j--){
+                //Left border numbers
+                if(j == 8){
+                    result.append(SET_BG_COLOR_BLACK);
+                    result.append(SET_TEXT_COLOR_WHITE);
+                    result.append(String.format("\u2003%s ",numbers.charAt(i-1)));
+                }
+                //Color Checkers
+                if((i - j) % 2 == 0){
+                    result.append(SET_BG_COLOR_LIGHT_GREY);
+                } else{
+                    result.append(SET_BG_COLOR_DARK_GREY);
+                }
+                //Color pieces
+                ChessPosition curPos = new ChessPosition(i, j);
+                ChessPiece curPiece = board.getPiece(curPos);
+                if(curPiece != null){
+                    result.append(drawPiece(curPiece));
+                }
+                else{
+                    result.append(EMPTY);
+                }
+                if(j == 1){
+                    result.append(SET_BG_COLOR_BLACK + EMPTY);
+                }
+            }
+            //Reset
+            result.append(RESET_ALL);
+            result.append(RESET_TEXT_COLOR);
+            result.append("\n");
+        }
+        //Bottom border
         for(int i = 1; i <= 10; i++){
             result.append(SET_BG_COLOR_BLACK + EMPTY);
         }
