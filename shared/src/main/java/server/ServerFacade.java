@@ -6,6 +6,7 @@ import request.CreateGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import response.CreateGameResponse;
+import response.ListGamesResponse;
 import response.LoginResponse;
 import response.RegisterResponse;
 
@@ -33,6 +34,11 @@ public class ServerFacade {
     public void logout(String authToken) throws ResponseException {
         var path ="/session";
         this.makeRequest("DELETE", path, null, null, authToken);
+    }
+
+    public ListGamesResponse list(String authToken) throws ResponseException {
+        var path="/game";
+        return this.makeRequest("GET", path, null, ListGamesResponse.class, authToken);
     }
 
     public CreateGameResponse createGame(CreateGameRequest request, String authToken) throws ResponseException {

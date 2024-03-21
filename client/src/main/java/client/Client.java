@@ -5,10 +5,12 @@ import java.util.HashMap;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
+import model.GameData;
 import request.CreateGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import response.CreateGameResponse;
+import response.ListGamesResponse;
 import response.LoginResponse;
 import response.RegisterResponse;
 import server.ServerFacade;
@@ -34,9 +36,9 @@ public class Client {
                 case "login" -> login(params);
                 case "logout" -> logout();
                 case "create" -> createGame(params);
-//                case "list" -> signIn();
-//                case "join" -> signIn(params);
-//                case "observe" -> signIn(params);
+                case "list" -> list();
+//                case "join" -> join(params);
+//                case "observe" -> observe(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -99,6 +101,22 @@ public class Client {
             return String.format("Game ID: %s.", response.gameID());
         }
         throw new ResponseException(400, "Expected: <name>");
+    }
+
+    public String list() throws ResponseException{
+        assertSignedIn();
+        ListGamesResponse response = server.list(authToken);
+        StringBuilder result = new StringBuilder();
+        var count = 1;
+        for(GameData game : response.games()){
+            result.append(String.format("%s. ",count));
+            result.append(String.format("%s\n",game.gameName()));
+            result.append(String.format("    White: %s\n",game.whiteUsername()));
+            result.append(String.format("    Black: %s\n",game.blackUsername()));
+            result.append("\n");
+            count ++;
+        }
+        return result.toString();
     }
 
     private void assertSignedIn() throws ResponseException {
