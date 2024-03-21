@@ -20,30 +20,27 @@ public class ServerFacade {
 
     public RegisterResponse register(RegisterRequest request) throws ResponseException {
         var path = "/user";
-        return this.makeRequest("POST",path, request, RegisterResponse.class);
+        return this.makeRequest("POST",path, request, RegisterResponse.class, null);
     }
 
     public LoginResponse login(LoginRequest request) throws ResponseException {
         var path = "/session";
-        return this.makeRequest("POST", path, request, LoginResponse.class);
+        return this.makeRequest("POST", path, request, LoginResponse.class, null);
     }
 
-    public void deletePet(int id) throws ResponseException {
-        var path = String.format("/pet/%s", id);
-        this.makeRequest("DELETE", path, null, null);
+    public void logout(String authToken) throws ResponseException {
+        var path ="/session";
+        this.makeRequest("DELETE", path, null, null, authToken);
     }
-
-    public void deleteAllPets() throws ResponseException {
-        var path = "/pet";
-        this.makeRequest("DELETE", path, null, null);
-    }
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
-
+            if(authToken != null){
+                http.addRequestProperty("authorization", authToken);
+            }
             writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);

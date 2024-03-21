@@ -1,6 +1,7 @@
 package client;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
@@ -14,7 +15,7 @@ public class Client {
     private String visitorName = null;
     private final ServerFacade server;
     private final String serverUrl;
-    private State state = State.SIGNEDOUT;
+    private String authToken;
 
     public Client(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -28,7 +29,12 @@ public class Client {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "register" -> register(params);
-                case "login" -> signIn(params);
+                case "login" -> login(params);
+                case "logout" -> logout();
+//                case "create" -> signIn(params);
+//                case "list" -> signIn();
+//                case "join" -> signIn(params);
+//                case "observe" -> signIn(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -38,7 +44,7 @@ public class Client {
     }
 
     public String help() {
-        if (state == State.SIGNEDOUT) {
+        if (authToken == null) {
             return """
                     - help
                     - register <username> <password> <email>
@@ -47,11 +53,12 @@ public class Client {
                     """;
         }
         return """
+                - help
+                - logout
+                - create <name>
                 - list
-                - adopt <pet id>
-                - rescue <name> <CAT|DOG|FROG|FISH>
-                - adoptAll
-                - signOut
+                - join  <ID> [BLACK | WHITE | empty]
+                - observe <ID>
                 - quit
                 """;
     }
@@ -60,83 +67,29 @@ public class Client {
         if(params.length >= 3){
             RegisterRequest request = new RegisterRequest(params[0], params[1], params[2]);
             RegisterResponse response = server.register(request);
-            state = State.SIGNEDIN;
+            authToken = response.authToken();
             return "Successfully registered as " + response.username();
         }
         throw new ResponseException(400, "Expected: <username> <password> <email>");
     }
-    public String signIn(String... params) throws ResponseException {
+    public String login(String... params) throws ResponseException {
         if (params.length >= 2) {
             LoginRequest request = new LoginRequest(params[0], params[1]);
             LoginResponse response = server.login(request);
-            state = State.SIGNEDIN;
+            authToken = response.authToken();
             return String.format("You logged in as %s.", response.username());
         }
         throw new ResponseException(400, "Expected: <yourname>");
     }
 
-    public String rescuePet(String... params) throws ResponseException {
-        assertSignedIn();
-        if (params.length >= 2) {
-//            var name = params[0];
-//            var type = PetType.valueOf(params[1].toUpperCase());
-//            var pet = new Pet(0, name, type);
-//            pet = server.addPet(pet);
-//            return String.format("You rescued %s. Assigned ID: %d", pet.name(), pet.id());
-        }
-        throw new ResponseException(400, "Expected: <name> <CAT|DOG|FROG>");
+    public String logout() throws ResponseException {
+        server.logout(authToken);
+        authToken = null;
+        return "Logged out";
     }
-
-    public String listPets() throws ResponseException {
-        assertSignedIn();
-//        var pets = server.listPets();
-//        var result = new StringBuilder();
-//        var gson = new Gson();
-//        for (var pet : pets) {
-//            result.append(gson.toJson(pet)).append('\n');
-//        }
-//        return result.toString();
-        return "";
-    }
-
-    public String adoptPet(String... params) throws ResponseException {
-        assertSignedIn();
-        if (params.length == 1) {
-//            try {
-//                var id = Integer.parseInt(params[0]);
-//                var pet = getPet(id);
-//                if (pet != null) {
-//                    server.deletePet(id);
-//                    return String.format("%s says %s", pet.name(), pet.sound());
-//                }
-//            } catch (NumberFormatException ignored) {
-//            }
-        }
-        throw new ResponseException(400, "Expected: <pet id>");
-    }
-
-    public String adoptAllPets() throws ResponseException {
-        assertSignedIn();
-//        var buffer = new StringBuilder();
-//        for (var pet : server.listPets()) {
-//            buffer.append(String.format("%s says %s%n", pet.name(), pet.sound()));
-//        }
-
-//        server.deleteAllPets();
-//        return buffer.toString();
-        return "";
-    }
-
-    public String signOut() throws ResponseException {
-        assertSignedIn();
-        state = State.SIGNEDOUT;
-        return String.format("%s left the shop", visitorName);
-    }
-
-
 
     private void assertSignedIn() throws ResponseException {
-        if (state == State.SIGNEDOUT) {
+        if (authToken == null) {
             throw new ResponseException(400, "You must sign in");
         }
     }
