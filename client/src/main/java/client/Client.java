@@ -38,7 +38,7 @@ public class Client {
                 case "create" -> createGame(params);
                 case "list" -> list();
                 case "join" -> join(params);
-//                case "observe" -> observe(params);
+                case "observe" -> observe(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -129,6 +129,16 @@ public class Client {
             return String.format("Joined %s", gameList.get(Integer.parseInt(params[0])).gameName());
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE | BLACK | empty]");
+    }
+
+    public String observe(String ...params) throws ResponseException{
+        assertSignedIn();
+        if(params.length >= 1){
+            JoinGameRequest request = new JoinGameRequest("",gameList.get(Integer.parseInt(params[0])).gameID());
+            server.join(request,authToken);
+            return String.format("Observing %s", gameList.get(Integer.parseInt(params[0])).gameName());
+        }
+        throw new ResponseException(400, "Expected: <ID>");
     }
 
     private void assertSignedIn() throws ResponseException {
