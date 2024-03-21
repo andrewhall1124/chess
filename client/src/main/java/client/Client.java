@@ -121,7 +121,6 @@ public class Client {
             result.append(String.format("%s\n",game.gameName()));
             result.append(String.format("    White: %s\n",game.whiteUsername()));
             result.append(String.format("    Black: %s\n",game.blackUsername()));
-            result.append("\n");
             count ++;
         }
         return result.toString();

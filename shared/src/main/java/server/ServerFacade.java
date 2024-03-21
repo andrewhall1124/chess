@@ -51,6 +51,11 @@ public class ServerFacade {
         var path = "/game";
         return this.makeRequest("POST", path, request, CreateGameResponse.class, authToken);
     }
+
+    public void clear() throws ResponseException {
+        var path="/db";
+        this.makeRequest("DELETE", path, null, null, null);
+    }
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
