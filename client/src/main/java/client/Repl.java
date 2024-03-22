@@ -5,15 +5,15 @@ import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 public class Repl {
-    private final Client client;
+    private final PreLogin preLogin;
 
     public Repl(String serverUrl) {
-        client = new Client(serverUrl);
+        preLogin = new PreLogin(serverUrl);
     }
 
     public void run() {
         System.out.println("Welcome to CS 240 Chess. Sign in to start.");
-        System.out.print(client.help());
+        System.out.print(preLogin.help());
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
@@ -21,7 +21,7 @@ public class Repl {
             String line = scanner.nextLine();
 
             try {
-                result = client.eval(line);
+                result = preLogin.eval(line);
                 System.out.print(BLUE + result);
             } catch (Throwable e) {
                 var msg = e.toString();
@@ -30,7 +30,6 @@ public class Repl {
         }
         System.out.println();
     }
-
     private void printPrompt() {
         System.out.print("\n" + RESET + ">>> " + GREEN);
     }
