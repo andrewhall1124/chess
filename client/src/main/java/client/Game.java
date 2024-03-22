@@ -6,10 +6,8 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import exception.ResponseException;
 import server.ServerFacade;
-
 import java.util.Arrays;
 import java.util.Scanner;
-
 import static ui.EscapeSequences.*;
 
 public class Game {
@@ -19,8 +17,8 @@ public class Game {
     }
 
     public String run(ChessGame game){
-        System.out.println(drawWhiteBoard(game.getBoard()));
         System.out.println(drawBlackBoard(game.getBoard()));
+        System.out.println(drawWhiteBoard(game.getBoard()));
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("Left the game")) {

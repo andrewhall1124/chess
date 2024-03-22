@@ -1,21 +1,9 @@
 package client;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Scanner;
-
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
 import exception.ResponseException;
-import model.GameData;
-import request.CreateGameRequest;
-import request.JoinGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
-import response.CreateGameResponse;
-import response.ListGamesResponse;
 import response.LoginResponse;
 import response.RegisterResponse;
 import server.ServerFacade;
@@ -24,12 +12,12 @@ import static ui.EscapeSequences.*;
 public class PreLogin {
     private final ServerFacade server;
     private final PostLogin postLogin;
-    public PreLogin(String serverUrl) {
+    public PreLogin(String serverUrl){
         server = new ServerFacade(serverUrl);
         postLogin = new PostLogin(serverUrl);
     }
 
-    public String eval(String input) {
+    public String eval(String input) throws ResponseException{
         try {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -72,9 +60,5 @@ public class PreLogin {
 
         }
         throw new ResponseException(400, "Expected: <yourname>");
-    }
-
-    private void printPrompt() {
-        System.out.print("\n" + RESET + ">>> " + GREEN);
     }
 }
