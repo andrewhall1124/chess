@@ -151,8 +151,8 @@ public class Client {
             GameData game = gameList.get(gameID);
             StringBuilder result = new StringBuilder();
             result.append(String.format("Observing %s\n", game.gameName()));
-            result.append(drawWhiteBoard(game.game().getBoard()) + "\n");
             result.append(drawBlackBoard(game.game().getBoard()) + "\n");
+            result.append(drawWhiteBoard(game.game().getBoard()) + "\n");
             return result.toString();
         }
         throw new ResponseException(400, "Expected: <ID>");
@@ -161,7 +161,7 @@ public class Client {
     public String drawWhiteBoard(ChessBoard board){
         StringBuilder result = new StringBuilder();
         String letters = "ABCDEFGH";
-        String numbers = "12345678";
+        String numbers = "87654321";
 
         //Top border
         result.append( SET_BG_COLOR_BLACK + EMPTY);
