@@ -18,7 +18,7 @@ public class PostLogin {
     private Game game;
     private HashMap<Integer, GameData> gameList = new HashMap<>();
 
-    public PostLogin(String serverUrl) {
+    public PostLogin(String serverUrl){
         server = new ServerFacade(serverUrl);
         game = new Game(serverUrl);
     }
@@ -66,7 +66,7 @@ public class PostLogin {
                 - logout
                 - create <name>
                 - list
-                - join  <ID> [BLACK | WHITE | empty]
+                - join  <ID> [BLACK | WHITE]
                 - observe <ID>
                 """;
     }
@@ -109,11 +109,13 @@ public class PostLogin {
     public String join(String ...params) throws ResponseException{
         if(params.length >= 2){
             Integer gameID = Integer.parseInt(params[0]);
-            JoinGameRequest request = new JoinGameRequest(params[1].toUpperCase(),gameList.get(gameID).gameID());
+            String teamColor = params[1].toUpperCase();
+            System.out.println("Team color: " + teamColor);
+            JoinGameRequest request = new JoinGameRequest(teamColor,gameList.get(gameID).gameID());
             server.join(request,authToken);
             GameData game = gameList.get(gameID);
             System.out.println(BLUE + "Successfully joined " + game.gameName());
-            return this.game.run(game.game());
+            return this.game.run(game.game(), teamColor);
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE | BLACK | empty]");
     }
@@ -125,7 +127,7 @@ public class PostLogin {
             server.join(request,authToken);
             GameData game = gameList.get(gameID);
             System.out.println(BLUE + "Successfully observing " + game.gameName());
-            return this.game.run(game.game());
+            return this.game.run(game.game(), "");
         }
         throw new ResponseException(400, "Expected: <ID>");
     }

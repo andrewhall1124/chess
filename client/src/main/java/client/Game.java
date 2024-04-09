@@ -6,19 +6,25 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import exception.ResponseException;
 import server.ServerFacade;
+import webSocket.WSClient;
+
 import java.util.Arrays;
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 public class Game {
-    private final ServerFacade server;
+//    private final WSClient ws;
+    private String teamColor;
+    private ChessGame game;
     public Game(String serverUrl){
-        this.server = new ServerFacade(serverUrl);
+//        this.ws = new WSClient(serverUrl);
     }
 
-    public String run(ChessGame game){
-        System.out.println(drawBlackBoard(game.getBoard()));
-        System.out.println(drawWhiteBoard(game.getBoard()));
+    public String run(ChessGame game, String teamColor){
+        this.teamColor = teamColor;
+        this.game = game;
+
+        System.out.println(redraw());
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("Left the game")) {
@@ -41,6 +47,7 @@ public class Game {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "leave" -> leave();
+                case "redraw" -> redraw();
                 default -> help();
             };
         } catch (ResponseException ex) {
@@ -50,11 +57,28 @@ public class Game {
 
     public String help() {
         return """
+                - help
+                - redraw
                 - leave
+                - move
+                - resign
+                - highlight
                 """;
     }
     public String leave() throws ResponseException{
         return "Left the game";
+    }
+
+    public String redraw(){
+        if(teamColor.equals("WHITE")){
+            return drawWhiteBoard(game.getBoard());
+        }
+        else if (teamColor.equals("BLACK")){
+            return drawBlackBoard(game.getBoard());
+        }
+        else{
+            return drawWhiteBoard(game.getBoard()) + drawBlackBoard(game.getBoard());
+        }
     }
     public String drawWhiteBoard(ChessBoard board){
         StringBuilder result = new StringBuilder();
