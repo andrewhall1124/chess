@@ -11,11 +11,14 @@ import service.AuthService;
 import service.GameService;
 import service.UserService;
 import spark.*;
+import webSocket.WebSocketHandler;
 
 public class Server{
     private final UserService userService = new UserService();
     private final AuthService authService = new AuthService();
     private final GameService gameService = new GameService();
+    private final WebSocketHandler ws = new WebSocketHandler();
+
 
     private int getStatus(String message){
         switch (message){
@@ -29,6 +32,8 @@ public class Server{
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/connect", ws);
 
         Spark.delete("/db", this::clearHandler);
         Spark.post("/user", this::registerHandler);
