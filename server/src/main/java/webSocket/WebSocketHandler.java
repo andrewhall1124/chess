@@ -12,6 +12,7 @@ import java.io.IOException;
 
 @WebSocket
 public class WebSocketHandler {
+    private final ConnectionManager connections = new ConnectionManager();
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
@@ -25,9 +26,13 @@ public class WebSocketHandler {
 
     private void handleJoinPlayerCommand(String message, Session session) throws IOException {
         JoinPlayer command = new Gson().fromJson(message, JoinPlayer.class);
+
         String authToken = command.getAuthString();
-        var result = String.format("%s joined game", authToken) + '\n' + RESET +  ">>>" + GREEN;
+        connections.add(authToken, session);
+
+        var result = String.format("%s joined game", authToken) + '\n' + '\n' + RESET +  ">>> " + GREEN;
         var notification = new Notification(result);
+
         session.getRemote().sendString("WebSocket response: " + notification.getMessage());
     }
 

@@ -77,7 +77,8 @@ public class Game {
                 - move
                 - resign
                 - highlight
-                """;
+                """
+                + "\n" + RESET + ">>> " + GREEN;
     }
     public String leave() throws ResponseException{
         return "Left the game";
