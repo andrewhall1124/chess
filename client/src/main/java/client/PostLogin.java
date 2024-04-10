@@ -108,26 +108,28 @@ public class PostLogin {
 
     public String join(String ...params) throws ResponseException{
         if(params.length >= 2){
-            Integer gameID = Integer.parseInt(params[0]);
+            Integer gameListID = Integer.parseInt(params[0]);
+            int gameID = gameList.get(gameListID).gameID();
             String teamColor = params[1].toUpperCase();
             System.out.println("Team color: " + teamColor);
-            JoinGameRequest request = new JoinGameRequest(teamColor,gameList.get(gameID).gameID());
+            JoinGameRequest request = new JoinGameRequest(teamColor,gameID);
             server.join(request,authToken);
-            GameData game = gameList.get(gameID);
+            GameData game = gameList.get(gameListID);
             System.out.println(BLUE + "Successfully joined " + game.gameName());
-            return this.game.run(game.game(), authToken, gameID, teamColor);
+            return this.game.run(authToken, gameID, teamColor);
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE | BLACK | empty]");
     }
 
     public String observe(String ...params) throws ResponseException{
         if(params.length >= 1){
-            Integer gameID = Integer.parseInt(params[0]);
-            JoinGameRequest request = new JoinGameRequest("",gameList.get(gameID).gameID());
+            Integer gameListID = Integer.parseInt(params[0]);
+            int gameID = gameList.get(gameListID).gameID();
+            JoinGameRequest request = new JoinGameRequest("",gameList.get(gameListID).gameID());
             server.join(request,authToken);
-            GameData game = gameList.get(gameID);
+            GameData game = gameList.get(gameListID);
             System.out.println(BLUE + "Successfully observing " + game.gameName());
-            return this.game.run(game.game(), authToken,gameID,null);
+            return this.game.run(authToken,gameID,null);
         }
         throw new ResponseException(400, "Expected: <ID>");
     }

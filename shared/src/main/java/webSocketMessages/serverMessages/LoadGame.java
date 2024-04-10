@@ -1,5 +1,7 @@
 package webSocketMessages.serverMessages;
 
+import chess.ChessGame;
+
 import java.util.Objects;
 
 /**
@@ -7,14 +9,14 @@ import java.util.Objects;
  */
 public class LoadGame extends ServerMessage {
 
-    private Object game;
+    private ChessGame game;
 
-    public LoadGame(Object game) {
+    public LoadGame(ChessGame game) {
         super(ServerMessageType.LOAD_GAME);
         this.game = game;
     }
 
-    public Object getGame() {
+    public ChessGame getGame() {
         return game;
     }
 

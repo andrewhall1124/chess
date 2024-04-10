@@ -55,4 +55,9 @@ public class GameService {
             gameDAO.createGame(newGame);
         }
     }
+
+    public ChessGame getGameByID(int gameID) throws DataAccessException{
+        ChessGame game = gameDAO.readGame(gameID).game();
+        return game;
+    }
 }

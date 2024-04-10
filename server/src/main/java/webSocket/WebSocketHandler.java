@@ -1,9 +1,16 @@
 package webSocket;
 
 import static ui.EscapeSequences.*;
+
+import chess.ChessGame;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.*;
+import service.AuthService;
+import service.GameService;
+import service.UserService;
+import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.userCommands.JoinPlayer;
 import webSocketMessages.userCommands.UserGameCommand;
@@ -13,6 +20,10 @@ import java.io.IOException;
 @WebSocket
 public class WebSocketHandler {
     private final ConnectionManager connections = new ConnectionManager();
+    private final GameService gameService = new GameService();
+    private final AuthService authService = new AuthService();
+
+    private final String reset = '\n' + '\n' + RESET +  ">>> " + GREEN;
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
@@ -21,19 +32,25 @@ public class WebSocketHandler {
             case JOIN_OBSERVER -> handleJoinObserverCommand(message, session);
             case MAKE_MOVE -> handleMakeMoveCommand(message, session);
             case LEAVE -> handleLeaveCommand(message, session);
-            case RESIGN -> handleResignCommand(message, session);        }
+            case RESIGN -> handleResignCommand(message, session);
+        }
     }
 
-    private void handleJoinPlayerCommand(String message, Session session) throws IOException {
+    private void handleJoinPlayerCommand(String message, Session session) throws Exception {
         JoinPlayer command = new Gson().fromJson(message, JoinPlayer.class);
 
         String authToken = command.getAuthString();
+        int gameID = command.getGameID();
+        String userName = authService.getUsername(authToken);
+
         connections.add(authToken, session);
 
-        var result = String.format("%s joined game", authToken) + '\n' + '\n' + RESET +  ">>> " + GREEN;
-        var notification = new Notification(result);
-
-        session.getRemote().sendString("WebSocket response: " + notification.getMessage());
+        String result = String.format("%s joined game", userName) + reset;
+        Notification notification = new Notification(result);
+        ChessGame game = gameService.getGameByID(gameID);
+        LoadGame load = new LoadGame(game);
+        connections.notifyAll(authToken,notification);
+        connections.sendLoadTo(authToken, load);
     }
 
     private void handleJoinObserverCommand(String message, Session session) {
