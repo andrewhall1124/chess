@@ -1,5 +1,6 @@
 package webSocket;
 
+import static ui.EscapeSequences.*;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.*;
@@ -25,7 +26,7 @@ public class WebSocketHandler {
     private void handleJoinPlayerCommand(String message, Session session) throws IOException {
         JoinPlayer command = new Gson().fromJson(message, JoinPlayer.class);
         String authToken = command.getAuthString();
-        var result = String.format("%s joined game", authToken);
+        var result = String.format("%s joined game", authToken) + '\n' + RESET +  ">>>" + GREEN;
         var notification = new Notification(result);
         session.getRemote().sendString("WebSocket response: " + notification.getMessage());
     }

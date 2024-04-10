@@ -37,19 +37,17 @@ public class Game {
             ws = new WebSocketFacade();
             ws.joinPlayer(authToken,gameID,teamColorC);
             Scanner scanner = new Scanner(System.in);
-//            System.out.println(redraw());
-//            var result = "";
-//            while (!result.equals("Left the game")) {
-//                printPrompt();
-//                String line = scanner.nextLine();
-//                try {
-//                    result = eval(line);
-//                    System.out.print(BLUE + result);
-//                } catch (Throwable e) {
-//                    var msg = e.toString();
-//                    System.out.print(msg);
-//                }
-//            }
+            var result = "";
+            while (!result.equals("Left the game")) {
+                String line = scanner.nextLine();
+                try {
+                    result = eval(line);
+                    System.out.print(BLUE + result);
+                } catch (Throwable e) {
+                    var msg = e.toString();
+                    System.out.print(msg);
+                }
+            }
         }
         catch(Exception e){
             System.out.println("Here: " + e.getMessage());
