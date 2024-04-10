@@ -15,14 +15,34 @@ public class WebSocketHandler {
     public void onMessage(Session session, String message) throws Exception {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch (command.getCommandType()) {
-            case JOIN_PLAYER -> playerJoined(command, session);
-        }
+            case JOIN_PLAYER -> handleJoinPlayerCommand(message, session);
+            case JOIN_OBSERVER -> handleJoinObserverCommand(message, session);
+            case MAKE_MOVE -> handleMakeMoveCommand(message, session);
+            case LEAVE -> handleLeaveCommand(message, session);
+            case RESIGN -> handleResignCommand(message, session);        }
     }
 
-    private void playerJoined(UserGameCommand command, Session session) throws IOException {
+    private void handleJoinPlayerCommand(String message, Session session) throws IOException {
+        JoinPlayer command = new Gson().fromJson(message, JoinPlayer.class);
         String authToken = command.getAuthString();
-        var message = String.format("%s joined game", authToken);
-        var notification = new Notification(message);
+        var result = String.format("%s joined game", authToken);
+        var notification = new Notification(result);
         session.getRemote().sendString("WebSocket response: " + notification.getMessage());
+    }
+
+    private void handleJoinObserverCommand(String message, Session session) {
+        // Handle JOIN_OBSERVER command
+    }
+
+    private void handleMakeMoveCommand(String message, Session session) {
+        // Handle MAKE_MOVE command
+    }
+
+    private void handleLeaveCommand(String message, Session session) {
+        // Handle LEAVE command
+    }
+
+    private void handleResignCommand(String message, Session session) {
+        // Handle RESIGN command
     }
 }
