@@ -115,7 +115,7 @@ public class PostLogin {
             server.join(request,authToken);
             GameData game = gameList.get(gameID);
             System.out.println(BLUE + "Successfully joined " + game.gameName());
-            return this.game.run(game.game(), teamColor);
+            return this.game.run(game.game(), authToken, gameID, teamColor);
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE | BLACK | empty]");
     }
@@ -127,7 +127,7 @@ public class PostLogin {
             server.join(request,authToken);
             GameData game = gameList.get(gameID);
             System.out.println(BLUE + "Successfully observing " + game.gameName());
-            return this.game.run(game.game(), "");
+            return this.game.run(game.game(), authToken,gameID,null);
         }
         throw new ResponseException(400, "Expected: <ID>");
     }

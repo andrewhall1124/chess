@@ -21,40 +21,40 @@ public class Game {
         this.serverUrl = serverUrl;
     }
 
-    public String run(ChessGame game, String teamColor){
+    public String run(ChessGame game, String authToken, int gameID, String teamColor){
         this.teamColor = teamColor;
         this.game = game;
 
-        try{
-            var ws = new WebSocketFacade();
-            Scanner scanner = new Scanner(System.in);
+        ChessGame.TeamColor teamColorC = null;
+        if(teamColor.equals("WHITE")){
+            teamColorC = ChessGame.TeamColor.WHITE;
+        }
+        if(teamColor.equals("BLACK")){
+            teamColorC = ChessGame.TeamColor.BLACK;
+        }
 
-            System.out.println("Enter a message you want to echo");
-            while (true) {
-                ws.send(scanner.nextLine());
-            }
+        try{
+            ws = new WebSocketFacade();
+            ws.joinPlayer(authToken,gameID,teamColorC);
+            Scanner scanner = new Scanner(System.in);
+//            System.out.println(redraw());
+//            var result = "";
+//            while (!result.equals("Left the game")) {
+//                printPrompt();
+//                String line = scanner.nextLine();
+//                try {
+//                    result = eval(line);
+//                    System.out.print(BLUE + result);
+//                } catch (Throwable e) {
+//                    var msg = e.toString();
+//                    System.out.print(msg);
+//                }
+//            }
         }
         catch(Exception e){
             System.out.println("Here: " + e.getMessage());
         }
-
-
-//        System.out.println(redraw());
-//        Scanner scanner = new Scanner(System.in);
-//        var result = "";
-//        while (!result.equals("Left the game")) {
-//            printPrompt();
-//            String line = scanner.nextLine();
-//            try {
-//                result = eval(line);
-//                System.out.print(BLUE + result);
-//            } catch (Throwable e) {
-//                var msg = e.toString();
-//                System.out.print(msg);
-//            }
-//        }
-//        return "\n";
-        return "";
+        return "\n";
     }
     public String eval(String input) {
         try {
