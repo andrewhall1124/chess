@@ -5,6 +5,7 @@ import static ui.EscapeSequences.*;
 import chess.ChessGame;
 import chess.ChessPosition;
 import com.google.gson.Gson;
+import dataAccess.DataAccessException;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.*;
 import service.AuthService;
@@ -12,6 +13,7 @@ import service.GameService;
 import service.UserService;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
+import webSocketMessages.userCommands.JoinObserver;
 import webSocketMessages.userCommands.JoinPlayer;
 import webSocketMessages.userCommands.UserGameCommand;
 
@@ -39,13 +41,14 @@ public class WebSocketHandler {
     private void handleJoinPlayerCommand(String message, Session session) throws Exception {
         JoinPlayer command = new Gson().fromJson(message, JoinPlayer.class);
 
-        String authToken = command.getAuthString();
         int gameID = command.getGameID();
+        String authToken = command.getAuthString();
         String userName = authService.getUsername(authToken);
+        ChessGame.TeamColor teamColor = command.getPlayerColor();
 
         connections.add(gameID,authToken, session);
 
-        String result = String.format("%s joined game", userName) + reset;
+        String result = String.format("%s joined game as %s", userName, teamColor.toString()) + reset;
         Notification notification = new Notification(result);
         ChessGame game = gameService.getGameByID(gameID);
         LoadGame load = new LoadGame(game);
@@ -53,8 +56,21 @@ public class WebSocketHandler {
         connections.sendLoadTo(gameID,authToken, load);
     }
 
-    private void handleJoinObserverCommand(String message, Session session) {
-        // Handle JOIN_OBSERVER command
+    private void handleJoinObserverCommand(String message, Session session) throws Exception {
+        JoinObserver command = new Gson().fromJson(message, JoinObserver.class);
+
+        int gameID = command.getGameID();
+        String authToken = command.getAuthString();
+        String userName = authService.getUsername(authToken);
+
+        connections.add(gameID,authToken, session);
+
+        String result = String.format("%s joined game as an observer", userName) + reset;
+        Notification notification = new Notification(result);
+        ChessGame game = gameService.getGameByID(gameID);
+        LoadGame load = new LoadGame(game);
+        connections.notifyAll(gameID,authToken,notification);
+        connections.sendLoadTo(gameID,authToken, load);
     }
 
     private void handleMakeMoveCommand(String message, Session session) {

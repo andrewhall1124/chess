@@ -15,12 +15,13 @@ import static ui.EscapeSequences.*;
 public class Game {
     private final String serverUrl;
     private  WebSocketFacade ws;
+    private boolean isPlayer = true;
     private String reset = "\n" + RESET + ">>> " + GREEN;
     public Game(String serverUrl){
         this.serverUrl = serverUrl;
     }
 
-    public String run(String authToken, int gameID, String teamColor){
+    public String runAsPlayer(String authToken, int gameID, String teamColor){
 
         ChessGame.TeamColor teamColorClass = null;
         if(teamColor.equals("WHITE")){
@@ -47,7 +48,32 @@ public class Game {
             }
         }
         catch(Exception e){
-            System.out.println("Here: " + e.getMessage());
+            System.out.println(e.getMessage());
+        }
+        return "\n";
+    }
+
+    public String runAsObserver(String authToken, int gameID){
+        isPlayer = false;
+        try{
+            ws = new WebSocketFacade(ChessGame.TeamColor.OBSERVER);
+            ws.joinObserver(authToken,gameID);
+            Scanner scanner = new Scanner(System.in);
+            var result = "";
+            while (!result.equals("Left the game")) {
+                String line = scanner.nextLine();
+                try {
+                    result = eval(line);
+                    System.out.print(BLUE + result);
+                } catch (Throwable e) {
+                    var msg = e.toString();
+                    System.out.print(msg);
+                }
+            }
+        }
+
+        catch(Exception e){
+            System.out.println(e.getMessage());
         }
         return "\n";
     }
@@ -56,17 +82,26 @@ public class Game {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
-                case "leave" -> leave();
-                case "redraw" -> ws.redraw();
-                default -> help();
-            };
+            if(isPlayer){
+                return switch (cmd) {
+                    case "leave" -> leave();
+                    case "redraw" -> ws.redraw();
+                    default -> helpPlayer();
+                };
+            }
+            else{
+                return switch (cmd) {
+                    case "leave" -> leave();
+                    default -> helpObserver();
+                };
+            }
+
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
     }
 
-    public String help() {
+    public String helpPlayer() {
         return """
                 - help
                 - redraw
@@ -74,6 +109,14 @@ public class Game {
                 - move
                 - resign
                 - highlight
+                """
+                + reset;
+    }
+
+    public String helpObserver() {
+        return """
+                - help
+                - leave
                 """
                 + reset;
     }

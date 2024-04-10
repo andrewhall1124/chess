@@ -9,6 +9,7 @@ import exception.ResponseException;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.serverMessages.ServerMessage;
+import webSocketMessages.userCommands.JoinObserver;
 import webSocketMessages.userCommands.JoinPlayer;
 import static ui.EscapeSequences.*;
 
@@ -61,8 +62,13 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void send(String msg) throws Exception {
-        this.session.getBasicRemote().sendText(msg);
+    public void joinObserver(String authToken, int gameID) throws ResponseException {
+        try {
+            var command = new JoinObserver(authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
 
     public void onOpen(Session session, EndpointConfig endpointConfig) {
@@ -76,7 +82,7 @@ public class WebSocketFacade extends Endpoint {
             return drawBlackBoard(game.getBoard()) + reset;
         }
         else{
-            return drawWhiteBoard(game.getBoard()) + drawBlackBoard(game.getBoard()) + reset;
+            return drawWhiteBoard(game.getBoard()) + '\n' + drawBlackBoard(game.getBoard()) + reset;
         }
     }
     public String drawWhiteBoard(ChessBoard board){
