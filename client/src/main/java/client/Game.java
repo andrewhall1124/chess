@@ -5,40 +5,56 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import exception.ResponseException;
-import server.ServerFacade;
-import webSocket.WSClient;
+import webSocket.WebSocketFacade;
+import webSocketMessages.serverMessages.ServerMessage;
 
 import java.util.Arrays;
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 public class Game {
-//    private final WSClient ws;
+    private final String serverUrl;
+    private  WebSocketFacade ws;
     private String teamColor;
     private ChessGame game;
     public Game(String serverUrl){
-//        this.ws = new WSClient(serverUrl);
+        this.serverUrl = serverUrl;
     }
 
     public String run(ChessGame game, String teamColor){
         this.teamColor = teamColor;
         this.game = game;
 
-        System.out.println(redraw());
-        Scanner scanner = new Scanner(System.in);
-        var result = "";
-        while (!result.equals("Left the game")) {
-            printPrompt();
-            String line = scanner.nextLine();
-            try {
-                result = eval(line);
-                System.out.print(BLUE + result);
-            } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(msg);
+        try{
+            var ws = new WebSocketFacade();
+            Scanner scanner = new Scanner(System.in);
+
+            System.out.println("Enter a message you want to echo");
+            while (true) {
+                ws.send(scanner.nextLine());
             }
         }
-        return "\n";
+        catch(Exception e){
+            System.out.println("Here: " + e.getMessage());
+        }
+
+
+//        System.out.println(redraw());
+//        Scanner scanner = new Scanner(System.in);
+//        var result = "";
+//        while (!result.equals("Left the game")) {
+//            printPrompt();
+//            String line = scanner.nextLine();
+//            try {
+//                result = eval(line);
+//                System.out.print(BLUE + result);
+//            } catch (Throwable e) {
+//                var msg = e.toString();
+//                System.out.print(msg);
+//            }
+//        }
+//        return "\n";
+        return "";
     }
     public String eval(String input) {
         try {
@@ -215,5 +231,10 @@ public class Game {
     }
     private void printPrompt() {
         System.out.print("\n" + RESET + ">>> " + GREEN);
+    }
+
+    public void notify(ServerMessage serverMessage) {
+        System.out.println(RED + serverMessage.getMessage());
+        printPrompt();
     }
 }

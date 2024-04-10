@@ -1,24 +1,17 @@
 package webSocket;
 
+import client.Game;
 import java.net.URI;
-import java.util.Scanner;
 import javax.websocket.*;
-
-public class WSClient {
+public class WebSocketFacade extends Endpoint {
+    private Game game;
     public Session session;
 
-    public WSClient(String url) {
-        //Initialization
-        try {
-            URI uri = new URI(url);
-            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            this.session = container.connectToServer(this, uri);
-        }
-        catch(Exception e){
-            System.out.println("Failed to connect to Web Socket");
-        }
+    public WebSocketFacade() throws Exception {
+        URI uri = new URI("ws://localhost:8080/connect");
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        this.session = container.connectToServer(this, uri);
 
-        //Recieve Messages
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
                 System.out.println(message);
@@ -26,7 +19,6 @@ public class WSClient {
         });
     }
 
-    //Send messages
     public void send(String msg) throws Exception {
         this.session.getBasicRemote().sendText(msg);
     }
