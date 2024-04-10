@@ -43,14 +43,14 @@ public class WebSocketHandler {
         int gameID = command.getGameID();
         String userName = authService.getUsername(authToken);
 
-        connections.add(authToken, session);
+        connections.add(gameID,authToken, session);
 
         String result = String.format("%s joined game", userName) + reset;
         Notification notification = new Notification(result);
         ChessGame game = gameService.getGameByID(gameID);
         LoadGame load = new LoadGame(game);
-        connections.notifyAll(authToken,notification);
-        connections.sendLoadTo(authToken, load);
+        connections.notifyAll(gameID,authToken,notification);
+        connections.sendLoadTo(gameID,authToken, load);
     }
 
     private void handleJoinObserverCommand(String message, Session session) {

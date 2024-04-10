@@ -7,40 +7,60 @@ import webSocketMessages.serverMessages.Notification;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
-    public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<Integer, HashMap<String, Connection>> connections = new ConcurrentHashMap<>();
 
-    public void add(String authToken, Session session) {
+    public void add(Integer gameID, String authToken, Session session) {
         var connection = new Connection(authToken, session);
-        connections.put(authToken, connection);
-    }
-    public void remove(String authToken) {
-        connections.remove(authToken);
+        connections.computeIfAbsent(gameID, k -> new HashMap<>()).put(authToken, connection);
     }
 
-    public void notifyAll(String authToken, Notification notification) throws IOException {
-        var removeList = new ArrayList<Connection>();
-        for (var c : connections.values()) {
-            if (c.session.isOpen()) {
-                if (!c.authToken.equals(authToken)) {
-                    c.send(notification.getMessage());
-                }
-            } else {
-                removeList.add(c);
+    public void remove(Integer gameID, String authToken) {
+        HashMap<String, Connection> gameConnections = connections.get(gameID);
+        if (gameConnections != null) {
+            gameConnections.remove(authToken);
+            if (gameConnections.isEmpty()) {
+                connections.remove(gameID);
             }
         }
+    }
 
-        // Clean up any connections that were left open.
-        for (var c : removeList) {
-            connections.remove(c.authToken);
+    public void notifyAll(Integer gameID, String authToken, Notification notification) throws IOException {
+        HashMap<String, Connection> gameConnections = connections.get(gameID);
+        if (gameConnections != null) {
+            var removeList = new ArrayList<Connection>();
+            for (Map.Entry<String, Connection> entry : gameConnections.entrySet()) {
+                Connection c = entry.getValue();
+                if (c.session.isOpen()) {
+                    if (!c.authToken.equals(authToken)) {
+                        c.send(notification.getMessage());
+                    }
+                } else {
+                    removeList.add(c);
+                }
+            }
+            // Clean up any connections that were left open.
+            for (Connection c : removeList) {
+                gameConnections.remove(c.authToken);
+            }
+            if (gameConnections.isEmpty()) {
+                connections.remove(gameID);
+            }
         }
     }
 
-    public void sendLoadTo(String authToken, LoadGame load) throws IOException {
-        Connection connection = connections.get(authToken);
-        Gson gson = new Gson();
-        connection.send(gson.toJson(load));
+    public void sendLoadTo(Integer gameID, String authToken, LoadGame load) throws IOException {
+        HashMap<String, Connection> gameConnections = connections.get(gameID);
+        if (gameConnections != null) {
+            Connection connection = gameConnections.get(authToken);
+            if (connection != null) {
+                Gson gson = new Gson();
+                connection.send(gson.toJson(load));
+            }
+        }
     }
 }
