@@ -111,122 +111,78 @@ public class WebSocketFacade extends Endpoint {
 
     public String redraw(){
         if(teamColor.equals(ChessGame.TeamColor.WHITE)){
-            return '\n' + drawWhiteBoard(game.getBoard()) + reset;
+            return '\n' + drawBoard(game.getBoard(), ChessGame.TeamColor.WHITE) + reset;
         }
         else if (teamColor.equals(ChessGame.TeamColor.BLACK)){
-            return '\n' + drawBlackBoard(game.getBoard()) + reset;
+            return '\n' + drawBoard(game.getBoard(), ChessGame.TeamColor.BLACK) + reset;
         }
         else{
-            return '\n' + drawWhiteBoard(game.getBoard()) + '\n' + drawBlackBoard(game.getBoard()) + reset;
+            return '\n' + drawBoard(game.getBoard(), ChessGame.TeamColor.WHITE)
+                    + '\n' + drawBoard(game.getBoard(), ChessGame.TeamColor.BLACK) + reset;
         }
     }
-    public String drawWhiteBoard(ChessBoard board){
+    public String drawBoard(ChessBoard board, ChessGame.TeamColor perspective) {
         StringBuilder result = new StringBuilder();
         String letters = "ABCDEFGH";
         String numbers = "87654321";
 
-        //Top border
-        result.append( SET_BG_COLOR_BLACK + EMPTY);
-        for(char letter : letters.toCharArray()) {
+        // Top border
+        result.append(SET_BG_COLOR_BLACK + EMPTY);
+        for (char letter : letters.toCharArray()) {
             result.append(SET_BG_COLOR_BLACK);
             result.append(SET_TEXT_COLOR_WHITE);
             result.append(String.format("\u2003%s ", letter));
         }
-        result.append( SET_BG_COLOR_BLACK + EMPTY);
+        result.append(SET_BG_COLOR_BLACK + EMPTY);
         result.append(RESET_ALL + "\n");
-        //Pieces + main board
-        for(int i = 1; i <= 8; i++){//Rows
-            for(int j = 1; j <= 8; j++){//Columns
-                //Left border numbers
-                if(j == 1){
+
+        // Pieces + main board
+        for (int i = 1; i <= 8; i++) {
+            int row = perspective == ChessGame.TeamColor.WHITE ? i : 9 - i; // Adjust row based on perspective
+
+            for (int j = 1; j <= 8; j++) {
+                int col = j;
+
+                // Left border numbers
+                if (j == 1) {
                     result.append(SET_BG_COLOR_BLACK);
                     result.append(SET_TEXT_COLOR_WHITE);
-                    result.append(String.format("\u2003%s ",numbers.charAt(i-1)));
+                    result.append(String.format("\u2003%s ", numbers.charAt(row - 1)));
                 }
-                //Color Checkers
-                if((i - j) % 2 == 0){
+
+                // Color Checkers
+                if ((row - col) % 2 == 0) {
                     result.append(SET_BG_COLOR_LIGHT_GREY);
-                } else{
+                } else {
                     result.append(SET_BG_COLOR_DARK_GREY);
                 }
-                //Color pieces
-                ChessPosition curPos = new ChessPosition(-(i-9), j);
+
+                // Color pieces
+                ChessPosition curPos = new ChessPosition(row, col);
                 ChessPiece curPiece = board.getPiece(curPos);
-                if(curPiece != null){
+                if (curPiece != null) {
                     result.append(drawPiece(curPiece));
-                }
-                else{
+                } else {
                     result.append(EMPTY);
                 }
-                if(j == 8){
+
+                if (j == 8) {
                     result.append(SET_BG_COLOR_BLACK + EMPTY);
                 }
             }
-            //Reset
+
+            // Reset
             result.append(RESET_ALL);
             result.append(RESET_TEXT_COLOR);
             result.append("\n");
         }
-        //Bottom border
-        for(int i = 1; i <= 10; i++){
+
+        // Bottom border
+        for (int i = 1; i <= 10; i++) {
             result.append(SET_BG_COLOR_BLACK + EMPTY);
         }
         result.append(RESET_ALL);
-        return result.toString();
-    }
 
-    public String drawBlackBoard(ChessBoard board){
-        StringBuilder result = new StringBuilder();
-        String letters = "HGFEDCBA";
-        String numbers = "87654321";
-
-        //Top border
-        result.append( SET_BG_COLOR_BLACK + EMPTY);
-        for(char letter : letters.toCharArray()) {
-            result.append(SET_BG_COLOR_BLACK);
-            result.append(SET_TEXT_COLOR_WHITE);
-            result.append(String.format("\u2003%s ", letter));
-        }
-        result.append( SET_BG_COLOR_BLACK + EMPTY);
-        result.append(RESET_ALL + "\n");
-        //Pieces + main board
-        for(int i = 8; i > 0; i--){
-            for(int j = 8; j > 0; j--){
-                //Left border numbers
-                if(j == 8){
-                    result.append(SET_BG_COLOR_BLACK);
-                    result.append(SET_TEXT_COLOR_WHITE);
-                    result.append(String.format("\u2003%s ",numbers.charAt(i-1)));
-                }
-                //Color Checkers
-                if((i - j) % 2 == 0){
-                    result.append(SET_BG_COLOR_LIGHT_GREY);
-                } else{
-                    result.append(SET_BG_COLOR_DARK_GREY);
-                }
-                //Color pieces
-                ChessPosition curPos = new ChessPosition(-(i-9), j);
-                ChessPiece curPiece = board.getPiece(curPos);
-                if(curPiece != null){
-                    result.append(drawPiece(curPiece));
-                }
-                else{
-                    result.append(EMPTY);
-                }
-                if(j == 1){
-                    result.append(SET_BG_COLOR_BLACK + EMPTY);
-                }
-            }
-            //Reset
-            result.append(RESET_ALL);
-            result.append(RESET_TEXT_COLOR);
-            result.append("\n");
-        }
-        //Bottom border
-        for(int i = 1; i <= 10; i++){
-            result.append(SET_BG_COLOR_BLACK + EMPTY);
-        }
-        result.append(RESET_ALL);
         return result.toString();
     }
 
