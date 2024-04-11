@@ -29,6 +29,7 @@ public class WebSocketFacade extends Endpoint {
         this.session = container.connectToServer(this, uri);
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+            @Override
             public void onMessage(String message) {
                 ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
                 switch (serverMessage.getServerMessageType()) {
@@ -104,6 +105,7 @@ public class WebSocketFacade extends Endpoint {
 
         return "Left the game";
     }
+    @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 

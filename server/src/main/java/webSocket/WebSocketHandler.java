@@ -115,7 +115,7 @@ public class WebSocketHandler {
 
         connections.add(gameID,authToken, session);
 
-        String result = String.format("\n%s joined game as an observer", userName) + reset;
+        String result = YELLOW + String.format("\n%s joined game as an observer", userName) + reset;
         Notification notification = new Notification(result);
         LoadGame load = new LoadGame(game.game());
         connections.notifyAllExcept(gameID,authToken,notification);
@@ -136,14 +136,14 @@ public class WebSocketHandler {
 
         if(teamTurn == ChessGame.TeamColor.WHITE){
             if(!Objects.equals(game.whiteUsername(), userName)){
-                Error error = new Error("Not your piece");
+                Error error = new Error("Not your turn");
                 connections.sendErrorTo(session, authToken, error);
                 return;
             }
         }
         if(teamTurn == ChessGame.TeamColor.BLACK){
             if(!Objects.equals(game.blackUsername(), userName)){
-                Error error = new Error("Not your piece");
+                Error error = new Error("Not your turn");
                 connections.sendErrorTo(session, authToken, error);
                 return;
             }
@@ -199,7 +199,7 @@ public class WebSocketHandler {
 
         connections.remove(gameID,authToken);
 
-        String result = String.format("\n%s has left the game", userName);
+        String result = YELLOW + String.format("\n%s has left the game", userName) + reset;
         Notification notification = new Notification(result);
         connections.notifyAllExcept(gameID,authToken,notification);
     }
@@ -241,8 +241,9 @@ public class WebSocketHandler {
         }
         gameService.endGame(gameID, game.game());
 
-        String result = String.format("\n%s resigned", userName) + reset;
+        String result = YELLOW + String.format("\n%s resigned", userName) + reset;
         Notification notification = new Notification(result);
         connections.notifyAll(gameID,notification);
+        connections.remove(gameID,authToken);
     }
 }

@@ -26,6 +26,7 @@ public class Game {
     }
 
     public String runAsPlayer(String authToken, int gameID, String teamColor){
+        isPlayer = true;
         server = new ServerFacade(serverUrl);
         this.authToken = authToken;
         this.gameID = gameID;
@@ -105,7 +106,7 @@ public class Game {
             }
             else{
                 return switch (cmd) {
-                    case "leave" -> leave();
+                    case "leave" -> ws.leave(authToken,gameID);
                     default -> helpObserver();
                 };
             }
@@ -185,10 +186,5 @@ public class Game {
 
     private void printPrompt() {
         System.out.print("\n" + RESET + ">>> " + GREEN);
-    }
-
-    public void notify(ServerMessage serverMessage) {
-        System.out.println(RED + serverMessage.getMessage());
-        printPrompt();
     }
 }
