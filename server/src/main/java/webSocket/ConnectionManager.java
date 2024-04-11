@@ -37,7 +37,8 @@ public class ConnectionManager {
                 Connection c = entry.getValue();
                 if (c.session.isOpen()) {
                     if (!c.authToken.equals(authToken)) {
-                        c.send(notification.getMessage());
+                        Gson gson = new Gson();
+                        c.send(gson.toJson(notification));
                     }
                 } else {
                     removeList.add(c);

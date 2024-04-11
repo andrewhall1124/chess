@@ -48,7 +48,7 @@ public class WebSocketHandler {
 
         connections.add(gameID,authToken, session);
 
-        String result = String.format("%s joined game as %s", userName, teamColor.toString()) + reset;
+        String result = YELLOW + String.format("\n%s joined game as %s\n", userName, teamColor.toString()) + reset;
         Notification notification = new Notification(result);
         ChessGame game = gameService.getGameByID(gameID);
         LoadGame load = new LoadGame(game);
