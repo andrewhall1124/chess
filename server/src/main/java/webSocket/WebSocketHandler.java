@@ -3,6 +3,7 @@ package webSocket;
 import static ui.EscapeSequences.*;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPosition;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
@@ -29,7 +30,7 @@ public class WebSocketHandler {
     private final GameService gameService = new GameService();
     private final AuthService authService = new AuthService();
 
-    private final String reset = '\n' + '\n' + RESET +  ">>> " + GREEN;
+    private final String reset = RESET + '\n' +   ">>> " + GREEN;
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
@@ -53,7 +54,7 @@ public class WebSocketHandler {
         } catch (Exception e) {
             Error error = new Error("Error: Bad auth token");
             connections.sendErrorTo(session, authToken, error);
-            return; // Exit the method after sending the error
+            return;
         }
 
         ChessGame.TeamColor teamColor = command.getPlayerColor();
@@ -62,17 +63,15 @@ public class WebSocketHandler {
         if (game == null) {
             Error error = new Error("Error: Bad game ID");
             connections.sendErrorTo(session, authToken, error);
-            return; // Exit the method after sending the error
+            return;
         }
 
-        // Check if the team color is already taken
         if (isTeamColorTaken(game, teamColor, userName)) {
             Error error = new Error("Error: Team color already taken");
             connections.sendErrorTo(session, authToken, error);
-            return; // Exit the method after sending the error
+            return;
         }
 
-        // Check if the game is empty (no players have joined yet)
         if (game.whiteUsername() == null && game.blackUsername() == null) {
             Error error = new Error("Error: Game is empty, join through HTTP endpoint first");
             connections.sendErrorTo(session, authToken, error);
@@ -81,7 +80,7 @@ public class WebSocketHandler {
 
         connections.add(gameID, authToken, session);
 
-        String result = YELLOW + String.format("\n%s joined game as %s\n", userName, teamColor.toString()) + reset;
+        String result = YELLOW + String.format("\n%s joined game as %s", userName, teamColor.toString()) + reset;
         Notification notification = new Notification(result);
         LoadGame load = new LoadGame(game.game());
 
@@ -122,7 +121,7 @@ public class WebSocketHandler {
 
         connections.add(gameID,authToken, session);
 
-        String result = String.format("%s joined game as an observer", userName) + reset;
+        String result = String.format("\n%s joined game as an observer", userName) + reset;
         Notification notification = new Notification(result);
         LoadGame load = new LoadGame(game.game());
         connections.notifyAll(gameID,authToken,notification);
@@ -134,14 +133,27 @@ public class WebSocketHandler {
 
         int gameID = command.getGameID();
         String authToken = command.getAuthString();
+        ChessMove move = command.getMove();
         String userName = authService.getUsername(authToken);
-
-        String result = String.format("%s joined game as an observer", userName) + reset;
-        Notification notification = new Notification(result);
         ChessGame game = gameService.getGameByID(gameID).game();
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+
+
+        try {
+            game.makeMove(move);
+            gameService.updateGame(gameID,game);
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        String result = YELLOW + String.format("\n%s made move: %s -> %s", userName, start.toString(), end.toString()) + reset;
+        Notification notification = new Notification(result);
         LoadGame load = new LoadGame(game);
         connections.notifyAll(gameID,authToken,notification);
-        connections.sendLoadTo(gameID,authToken, load);    }
+        connections.loadAll(gameID,load);
+    }
 
     private void handleLeaveCommand(String message, Session session) {
         // Handle LEAVE command

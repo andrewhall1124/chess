@@ -135,6 +135,7 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece currentPiece = board.getPiece(move.getStartPosition());
         //Check for team turn
+        TeamColor curColor = currentPiece.getTeamColor();
         if(currentPiece.getTeamColor() == this.teamTurn){
             HashSet<ChessMove> validatedMoves = validMoves(move.getStartPosition());
             //Check that move is valid

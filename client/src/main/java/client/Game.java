@@ -4,6 +4,7 @@ import chess.*;
 import exception.ResponseException;
 import request.CreateGameRequest;
 import response.CreateGameResponse;
+import server.ServerFacade;
 import webSocket.WebSocketFacade;
 import webSocketMessages.serverMessages.ServerMessage;
 
@@ -13,6 +14,7 @@ import static ui.EscapeSequences.*;
 
 public class Game {
     private final String serverUrl;
+    private ServerFacade server;
     private String authToken;
     private int gameID;
     private ChessGame.TeamColor teamColor;
@@ -24,6 +26,7 @@ public class Game {
     }
 
     public String runAsPlayer(String authToken, int gameID, String teamColor){
+        server = new ServerFacade(serverUrl);
         this.authToken = authToken;
         this.gameID = gameID;
 
@@ -142,28 +145,22 @@ public class Game {
             if(params.length > 2){
                 promotion = convertPieceString(params[2]).getPieceType();
             }
-            ChessMove move = new ChessMove(to, from, promotion);
+            ChessMove move = new ChessMove(from, to, promotion);
             ws.makeMove(authToken,gameID, move);
-            return "Made move";
+            return "";
         }
         throw new ResponseException(400, "Expected: <from> <to>");
     }
 
     private ChessPosition convertPosString(String location){
-        char[] array = location.toCharArray();
-        int x = 0;
-        int y = array[1];
-        switch(array[0]){
-            case 'a' ->  x=1;
-            case 'b' ->  x=2;
-            case 'c' ->  x=3;
-            case 'd' ->  x=4;
-            case 'e' ->  x=5;
-            case 'f' ->  x=6;
-            case 'g' ->  x=7;
-            case 'h' ->  x=8;
-        }
-        return new ChessPosition(x,y);
+
+        char col = location.charAt(0);
+        char row = location.charAt(1);
+
+        int y = col - 'a' + 1;
+        int x = Character.digit(row, 10);
+        ChessPosition pos = new ChessPosition(x,y);
+        return pos;
     }
 
     private ChessPiece convertPieceString(String piece) {

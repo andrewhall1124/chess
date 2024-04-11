@@ -89,13 +89,13 @@ public class WebSocketFacade extends Endpoint {
 
     public String redraw(){
         if(teamColor.equals(ChessGame.TeamColor.WHITE)){
-            return drawWhiteBoard(game.getBoard()) + reset;
+            return '\n' + drawWhiteBoard(game.getBoard()) + reset;
         }
         else if (teamColor.equals(ChessGame.TeamColor.BLACK)){
-            return drawBlackBoard(game.getBoard()) + reset;
+            return '\n' + drawBlackBoard(game.getBoard()) + reset;
         }
         else{
-            return drawWhiteBoard(game.getBoard()) + '\n' + drawBlackBoard(game.getBoard()) + reset;
+            return '\n' + drawWhiteBoard(game.getBoard()) + '\n' + drawBlackBoard(game.getBoard()) + reset;
         }
     }
     public String drawWhiteBoard(ChessBoard board){
@@ -113,8 +113,8 @@ public class WebSocketFacade extends Endpoint {
         result.append( SET_BG_COLOR_BLACK + EMPTY);
         result.append(RESET_ALL + "\n");
         //Pieces + main board
-        for(int i = 1; i <= 8; i++){
-            for(int j = 1; j <= 8; j++){
+        for(int i = 1; i <= 8; i++){//Rows
+            for(int j = 1; j <= 8; j++){//Columns
                 //Left border numbers
                 if(j == 1){
                     result.append(SET_BG_COLOR_BLACK);
@@ -128,7 +128,7 @@ public class WebSocketFacade extends Endpoint {
                     result.append(SET_BG_COLOR_DARK_GREY);
                 }
                 //Color pieces
-                ChessPosition curPos = new ChessPosition(i, j);
+                ChessPosition curPos = new ChessPosition(-(i-9), j);
                 ChessPiece curPiece = board.getPiece(curPos);
                 if(curPiece != null){
                     result.append(drawPiece(curPiece));
@@ -183,7 +183,7 @@ public class WebSocketFacade extends Endpoint {
                     result.append(SET_BG_COLOR_DARK_GREY);
                 }
                 //Color pieces
-                ChessPosition curPos = new ChessPosition(i, j);
+                ChessPosition curPos = new ChessPosition(-(i-9), j);
                 ChessPiece curPiece = board.getPiece(curPos);
                 if(curPiece != null){
                     result.append(drawPiece(curPiece));

@@ -71,4 +71,17 @@ public class ConnectionManager {
         Gson gson = new Gson();
         connection.send(gson.toJson(error));
     }
+
+    public void loadAll(Integer gameID, LoadGame load) throws IOException {
+        HashMap<String, Connection> gameConnections = connections.get(gameID);
+        if (gameConnections != null) {
+            for (Map.Entry<String, Connection> entry : gameConnections.entrySet()) {
+                Connection connection = entry.getValue();
+                if (connection.session.isOpen()) {
+                    Gson gson = new Gson();
+                    connection.send(gson.toJson(load));
+                }
+            }
+        }
+    }
 }
