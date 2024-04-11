@@ -56,8 +56,7 @@ public class GameService {
         }
     }
 
-    public ChessGame getGameByID(int gameID) throws DataAccessException{
-        ChessGame game = gameDAO.readGame(gameID).game();
-        return game;
+    public GameData getGameByID(int gameID) throws DataAccessException{
+        return gameDAO.readGame(gameID);
     }
 }

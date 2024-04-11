@@ -38,7 +38,7 @@ public class Game {
         }
 
         try{
-            ws = new WebSocketFacade(teamColorClass);
+            ws = new WebSocketFacade(serverUrl, teamColorClass);
             ws.joinPlayer(authToken,gameID,teamColorClass);
             Scanner scanner = new Scanner(System.in);
             var result = "";
@@ -54,7 +54,7 @@ public class Game {
             }
         }
         catch(Exception e){
-            System.out.println(e.getMessage());
+            System.out.println("Error: " + e.getMessage());
         }
         return "\n";
     }
@@ -65,7 +65,7 @@ public class Game {
 
         isPlayer = false;
         try{
-            ws = new WebSocketFacade(ChessGame.TeamColor.OBSERVER);
+            ws = new WebSocketFacade(serverUrl, ChessGame.TeamColor.OBSERVER);
             ws.joinObserver(authToken,gameID);
             Scanner scanner = new Scanner(System.in);
             var result = "";

@@ -2,6 +2,7 @@ package webSocket;
 
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
+import webSocketMessages.serverMessages.Error;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 
@@ -63,5 +64,11 @@ public class ConnectionManager {
                 connection.send(gson.toJson(load));
             }
         }
+    }
+
+    public void sendErrorTo(Session session, String authToken, Error error) throws IOException {
+        Connection connection = new Connection(authToken,session);
+        Gson gson = new Gson();
+        connection.send(gson.toJson(error));
     }
 }

@@ -3,6 +3,7 @@ package webSocket;
 import chess.*;
 import com.google.gson.Gson;
 import exception.ResponseException;
+import webSocketMessages.serverMessages.Error;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.serverMessages.ServerMessage;
@@ -22,10 +23,10 @@ public class WebSocketFacade extends Endpoint {
     public Session session;
     private String reset = "\n\n" + RESET +  ">>> " + GREEN;
 
-    public WebSocketFacade(ChessGame.TeamColor teamColor) throws Exception {
+    public WebSocketFacade(String serverUrl, ChessGame.TeamColor teamColor) throws Exception {
         this.teamColor = teamColor;
-
-        URI uri = new URI("ws://localhost:8080/connect");
+        String url = serverUrl.replace("http", "ws");
+        URI uri = new URI(url + "/connect");
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         this.session = container.connectToServer(this, uri);
 
@@ -35,7 +36,7 @@ public class WebSocketFacade extends Endpoint {
                 switch (serverMessage.getServerMessageType()) {
                     case NOTIFICATION -> handleNotification(message);
                     case LOAD_GAME -> handleLoadGame(message);
-//                    case ERROR -> handleError(message, session);
+                    case ERROR -> handleError(message);
                 }
             }
         });
@@ -50,6 +51,11 @@ public class WebSocketFacade extends Endpoint {
         LoadGame load = new Gson().fromJson(message, LoadGame.class);
         this.game = load.getGame();
         System.out.print(redraw());
+    }
+
+    public void handleError(String message){
+        Error error = new Gson().fromJson(message, Error.class);
+        System.out.println(error.getErrorMessage());
     }
 
     public void joinPlayer(String authToken, int gameID, ChessGame.TeamColor teamColor) throws ResponseException {
