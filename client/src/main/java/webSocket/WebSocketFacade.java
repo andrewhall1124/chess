@@ -158,7 +158,7 @@ public class WebSocketFacade extends Endpoint {
                 }
 
                 // Color pieces
-                ChessPosition curPos = new ChessPosition(row, col);
+                ChessPosition curPos = new ChessPosition(-(row-9), col);
                 ChessPiece curPiece = board.getPiece(curPos);
                 if (curPiece != null) {
                     result.append(drawPiece(curPiece));

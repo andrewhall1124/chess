@@ -25,25 +25,31 @@ public class Game {
         this.serverUrl = serverUrl;
     }
 
-    public String runAsPlayer(String authToken, int gameID, String teamColor){
-        isPlayer = true;
-        server = new ServerFacade(serverUrl);
+    public String run(String authToken, int gameID, String teamColor, boolean isPlayerMode) {
         this.authToken = authToken;
         this.gameID = gameID;
+        isPlayer = isPlayerMode;
 
         ChessGame.TeamColor teamColorClass = null;
-        if(teamColor.equals("WHITE")){
-            teamColorClass = ChessGame.TeamColor.WHITE;
-            this.teamColor = teamColorClass;
-        }
-        if(teamColor.equals("BLACK")){
-            teamColorClass = ChessGame.TeamColor.BLACK;
-            this.teamColor = teamColorClass;
+        if (teamColor != null) {
+            if (teamColor.equals("WHITE")) {
+                teamColorClass = ChessGame.TeamColor.WHITE;
+                this.teamColor = teamColorClass;
+            } else if (teamColor.equals("BLACK")) {
+                teamColorClass = ChessGame.TeamColor.BLACK;
+                this.teamColor = teamColorClass;
+            }
         }
 
-        try{
-            ws = new WebSocketFacade(serverUrl, teamColorClass);
-            ws.joinPlayer(authToken,gameID,teamColorClass);
+        try {
+            if (isPlayerMode) {
+                ws = new WebSocketFacade(serverUrl, teamColorClass);
+                ws.joinPlayer(authToken, gameID, teamColorClass);
+            } else {
+                ws = new WebSocketFacade(serverUrl, ChessGame.TeamColor.OBSERVER);
+                ws.joinObserver(authToken, gameID);
+            }
+
             Scanner scanner = new Scanner(System.in);
             var result = "";
             while (!result.equals("Left the game")) {
@@ -56,40 +62,13 @@ public class Game {
                     System.out.print(msg);
                 }
             }
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
+
         return "\n";
     }
 
-    public String runAsObserver(String authToken, int gameID){
-        this.authToken = authToken;
-        this.gameID = gameID;
-
-        isPlayer = false;
-        try{
-            ws = new WebSocketFacade(serverUrl, ChessGame.TeamColor.OBSERVER);
-            ws.joinObserver(authToken,gameID);
-            Scanner scanner = new Scanner(System.in);
-            var result = "";
-            while (!result.equals("Left the game")) {
-                String line = scanner.nextLine();
-                try {
-                    result = eval(line);
-                    System.out.print(BLUE + result);
-                } catch (Throwable e) {
-                    var msg = e.toString();
-                    System.out.print(msg);
-                }
-            }
-        }
-
-        catch(Exception e){
-            System.out.println(e.getMessage());
-        }
-        return "\n";
-    }
     public String eval(String input) {
         try {
             var tokens = input.toLowerCase().split(" ");
