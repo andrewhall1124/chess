@@ -15,6 +15,7 @@ import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.userCommands.JoinObserver;
 import webSocketMessages.userCommands.JoinPlayer;
+import webSocketMessages.userCommands.MakeMove;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import java.io.IOException;
@@ -73,9 +74,19 @@ public class WebSocketHandler {
         connections.sendLoadTo(gameID,authToken, load);
     }
 
-    private void handleMakeMoveCommand(String message, Session session) {
-        // Handle MAKE_MOVE command
-    }
+    private void handleMakeMoveCommand(String message, Session session) throws Exception{
+        MakeMove command = new Gson().fromJson(message, MakeMove.class);
+
+        int gameID = command.getGameID();
+        String authToken = command.getAuthString();
+        String userName = authService.getUsername(authToken);
+
+        String result = String.format("%s joined game as an observer", userName) + reset;
+        Notification notification = new Notification(result);
+        ChessGame game = gameService.getGameByID(gameID);
+        LoadGame load = new LoadGame(game);
+        connections.notifyAll(gameID,authToken,notification);
+        connections.sendLoadTo(gameID,authToken, load);    }
 
     private void handleLeaveCommand(String message, Session session) {
         // Handle LEAVE command

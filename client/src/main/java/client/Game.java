@@ -1,10 +1,9 @@
 package client;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import exception.ResponseException;
+import request.CreateGameRequest;
+import response.CreateGameResponse;
 import webSocket.WebSocketFacade;
 import webSocketMessages.serverMessages.ServerMessage;
 
@@ -14,6 +13,9 @@ import static ui.EscapeSequences.*;
 
 public class Game {
     private final String serverUrl;
+    private String authToken;
+    private int gameID;
+    private ChessGame.TeamColor teamColor;
     private  WebSocketFacade ws;
     private boolean isPlayer = true;
     private String reset = "\n" + RESET + ">>> " + GREEN;
@@ -22,13 +24,17 @@ public class Game {
     }
 
     public String runAsPlayer(String authToken, int gameID, String teamColor){
+        this.authToken = authToken;
+        this.gameID = gameID;
 
         ChessGame.TeamColor teamColorClass = null;
         if(teamColor.equals("WHITE")){
             teamColorClass = ChessGame.TeamColor.WHITE;
+            this.teamColor = teamColorClass;
         }
         if(teamColor.equals("BLACK")){
             teamColorClass = ChessGame.TeamColor.BLACK;
+            this.teamColor = teamColorClass;
         }
 
         try{
@@ -54,6 +60,9 @@ public class Game {
     }
 
     public String runAsObserver(String authToken, int gameID){
+        this.authToken = authToken;
+        this.gameID = gameID;
+
         isPlayer = false;
         try{
             ws = new WebSocketFacade(ChessGame.TeamColor.OBSERVER);
@@ -85,6 +94,7 @@ public class Game {
             if(isPlayer){
                 return switch (cmd) {
                     case "leave" -> leave();
+                    case "move" -> makeMove(params);
                     case "redraw" -> ws.redraw();
                     default -> helpPlayer();
                 };
@@ -106,7 +116,7 @@ public class Game {
                 - help
                 - redraw
                 - leave
-                - move
+                - move <from letter number> <to letter number>
                 - resign
                 - highlight
                 """
@@ -122,6 +132,56 @@ public class Game {
     }
     public String leave() throws ResponseException{
         return "Left the game";
+    }
+
+    public String makeMove(String ...params) throws ResponseException {
+        if(params.length >= 2){
+            ChessPosition from = convertPosString(params[0]);
+            ChessPosition to = convertPosString(params[1]);
+            ChessPiece.PieceType promotion = null;
+            if(params.length > 2){
+                promotion = convertPieceString(params[2]).getPieceType();
+            }
+            ChessMove move = new ChessMove(to, from, promotion);
+            ws.makeMove(authToken,gameID, move);
+            return "Made move";
+        }
+        throw new ResponseException(400, "Expected: <from> <to>");
+    }
+
+    private ChessPosition convertPosString(String location){
+        char[] array = location.toCharArray();
+        int x = 0;
+        int y = array[1];
+        switch(array[0]){
+            case 'a' ->  x=1;
+            case 'b' ->  x=2;
+            case 'c' ->  x=3;
+            case 'd' ->  x=4;
+            case 'e' ->  x=5;
+            case 'f' ->  x=6;
+            case 'g' ->  x=7;
+            case 'h' ->  x=8;
+        }
+        return new ChessPosition(x,y);
+    }
+
+    private ChessPiece convertPieceString(String piece) {
+        switch(piece){
+            case "QUEEN" -> {
+                return new ChessPiece(teamColor, ChessPiece.PieceType.QUEEN);
+            }
+            case "ROOK" -> {
+                return new ChessPiece(teamColor, ChessPiece.PieceType.ROOK);
+            }
+            case "BISHOP" -> {
+                return new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP);
+            }
+            case "KNIGHT" -> {
+                return new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT);
+            }
+        }
+        return null;
     }
 
 
