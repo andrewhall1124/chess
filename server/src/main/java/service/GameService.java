@@ -63,4 +63,17 @@ public class GameService {
     public void updateGame(int gameID, ChessGame game) throws DataAccessException {
         gameDAO.updateGame(gameID,game);
     }
+
+    public void clearWhiteUser(int gameID) throws DataAccessException {
+        gameDAO.deleteWhiteUsername(gameID);
+    }
+
+    public void clearBlackUser(int gameID) throws DataAccessException {
+        gameDAO.deleteBlackUsername(gameID);
+    }
+
+    public void endGame(int gameID, ChessGame game) throws DataAccessException {
+        game.setTeamTurn(ChessGame.TeamColor.COMPLETE);
+        gameDAO.updateGame(gameID,game);
+    }
 }

@@ -96,9 +96,10 @@ public class Game {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             if(isPlayer){
                 return switch (cmd) {
-                    case "leave" -> leave();
+                    case "leave" -> ws.leave(authToken,gameID);
                     case "move" -> makeMove(params);
                     case "redraw" -> ws.redraw();
+                    case "resign" -> ws.resign(authToken,gameID);
                     default -> helpPlayer();
                 };
             }
@@ -121,7 +122,6 @@ public class Game {
                 - leave
                 - move <from letter number> <to letter number>
                 - resign
-                - highlight
                 """
                 + reset;
     }
@@ -134,6 +134,7 @@ public class Game {
                 + reset;
     }
     public String leave() throws ResponseException{
+
         return "Left the game";
     }
 

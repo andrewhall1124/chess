@@ -7,9 +7,7 @@ import webSocketMessages.serverMessages.Error;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.serverMessages.ServerMessage;
-import webSocketMessages.userCommands.JoinObserver;
-import webSocketMessages.userCommands.JoinPlayer;
-import webSocketMessages.userCommands.MakeMove;
+import webSocketMessages.userCommands.*;
 
 import static ui.EscapeSequences.*;
 
@@ -83,6 +81,28 @@ public class WebSocketFacade extends Endpoint {
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
+    }
+
+    public String resign(String authToken, int gameID) throws ResponseException {
+        try {
+            var command = new Resign(authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+
+        return "";
+    }
+
+    public String leave(String authToken, int gameID) throws ResponseException {
+        try {
+            var command = new Leave(authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+
+        return "Left the game";
     }
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }

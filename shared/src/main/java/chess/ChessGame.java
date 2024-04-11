@@ -102,6 +102,7 @@ public class ChessGame {
         WHITE,
         BLACK,
         OBSERVER,
+        COMPLETE,
     }
 
     /**
@@ -156,7 +157,7 @@ public class ChessGame {
                 }
             }
             else{
-//                throw new InvalidMoveException("End position not allowed");
+                throw new InvalidMoveException("Bad move");
             }
         }
         else{

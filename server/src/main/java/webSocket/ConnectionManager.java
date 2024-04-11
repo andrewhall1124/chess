@@ -30,7 +30,7 @@ public class ConnectionManager {
         }
     }
 
-    public void notifyAll(Integer gameID, String authToken, Notification notification) throws IOException {
+    public void notifyAllExcept(Integer gameID, String authToken, Notification notification) throws IOException {
         HashMap<String, Connection> gameConnections = connections.get(gameID);
         if (gameConnections != null) {
             var removeList = new ArrayList<Connection>();
@@ -41,6 +41,29 @@ public class ConnectionManager {
                         Gson gson = new Gson();
                         c.send(gson.toJson(notification));
                     }
+                } else {
+                    removeList.add(c);
+                }
+            }
+            // Clean up any connections that were left open.
+            for (Connection c : removeList) {
+                gameConnections.remove(c.authToken);
+            }
+            if (gameConnections.isEmpty()) {
+                connections.remove(gameID);
+            }
+        }
+    }
+
+    public void notifyAll(Integer gameID, Notification notification) throws IOException {
+        HashMap<String, Connection> gameConnections = connections.get(gameID);
+        if (gameConnections != null) {
+            var removeList = new ArrayList<Connection>();
+            for (Map.Entry<String, Connection> entry : gameConnections.entrySet()) {
+                Connection c = entry.getValue();
+                if (c.session.isOpen()) {
+                    Gson gson = new Gson();
+                    c.send(gson.toJson(notification));
                 } else {
                     removeList.add(c);
                 }

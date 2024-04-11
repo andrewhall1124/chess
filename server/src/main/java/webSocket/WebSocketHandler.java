@@ -6,22 +6,16 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 import com.google.gson.Gson;
-import dataAccess.DataAccessException;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.*;
 import service.AuthService;
 import service.GameService;
-import service.UserService;
 import webSocketMessages.serverMessages.Error;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
-import webSocketMessages.userCommands.JoinObserver;
-import webSocketMessages.userCommands.JoinPlayer;
-import webSocketMessages.userCommands.MakeMove;
-import webSocketMessages.userCommands.UserGameCommand;
+import webSocketMessages.userCommands.*;
 
-import java.io.IOException;
 import java.util.Objects;
 
 @WebSocket
@@ -84,7 +78,7 @@ public class WebSocketHandler {
         Notification notification = new Notification(result);
         LoadGame load = new LoadGame(game.game());
 
-        connections.notifyAll(gameID, authToken, notification);
+        connections.notifyAllExcept(gameID, authToken, notification);
         connections.sendLoadTo(gameID, authToken, load);
     }
 
@@ -124,7 +118,7 @@ public class WebSocketHandler {
         String result = String.format("\n%s joined game as an observer", userName) + reset;
         Notification notification = new Notification(result);
         LoadGame load = new LoadGame(game.game());
-        connections.notifyAll(gameID,authToken,notification);
+        connections.notifyAllExcept(gameID,authToken,notification);
         connections.sendLoadTo(gameID,authToken, load);
     }
 
@@ -135,31 +129,120 @@ public class WebSocketHandler {
         String authToken = command.getAuthString();
         ChessMove move = command.getMove();
         String userName = authService.getUsername(authToken);
-        ChessGame game = gameService.getGameByID(gameID).game();
+        GameData game = gameService.getGameByID(gameID);
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
+        ChessGame.TeamColor teamTurn = game.game().getTeamTurn();
 
+        if(teamTurn == ChessGame.TeamColor.WHITE){
+            if(!Objects.equals(game.whiteUsername(), userName)){
+                Error error = new Error("Not your piece");
+                connections.sendErrorTo(session, authToken, error);
+                return;
+            }
+        }
+        if(teamTurn == ChessGame.TeamColor.BLACK){
+            if(!Objects.equals(game.blackUsername(), userName)){
+                Error error = new Error("Not your piece");
+                connections.sendErrorTo(session, authToken, error);
+                return;
+            }
+        }
+        else if (teamTurn == ChessGame.TeamColor.COMPLETE){
+            Error error = new Error("Game is over");
+            connections.sendErrorTo(session, authToken, error);
+            return;
+        }
 
         try {
-            game.makeMove(move);
-            gameService.updateGame(gameID,game);
+            game.game().makeMove(move);
+            gameService.updateGame(gameID,game.game());
         }
         catch(Exception e){
-            System.out.println(e.getMessage());
+            Error error = new Error("Error: Invalid move");
+            connections.sendErrorTo(session,authToken,error);
+            return;
         }
 
         String result = YELLOW + String.format("\n%s made move: %s -> %s", userName, start.toString(), end.toString()) + reset;
         Notification notification = new Notification(result);
-        LoadGame load = new LoadGame(game);
-        connections.notifyAll(gameID,authToken,notification);
+        LoadGame load = new LoadGame(game.game());
+        connections.notifyAllExcept(gameID,authToken,notification);
         connections.loadAll(gameID,load);
     }
 
-    private void handleLeaveCommand(String message, Session session) {
-        // Handle LEAVE command
+    private void handleLeaveCommand(String message, Session session) throws Exception{
+        Leave command = new Gson().fromJson(message, Leave.class);
+
+        int gameID = command.getGameID();
+        String authToken = command.getAuthString();
+
+        String userName = "";
+        try {
+            userName = authService.getUsername(authToken);
+        }
+        catch(Exception e){
+            Error error = new Error("Error: Bad auth token");
+            connections.sendErrorTo(session,authToken,error);
+            return;
+        }
+
+        GameData gameData = gameService.getGameByID(gameID);
+
+        if(Objects.equals(userName, gameData.whiteUsername())){
+            gameService.clearWhiteUser(gameID);
+        }
+
+        if(Objects.equals(userName, gameData.blackUsername())){
+            gameService.clearBlackUser(gameID);
+        }
+
+        connections.remove(gameID,authToken);
+
+        String result = String.format("\n%s has left the game", userName);
+        Notification notification = new Notification(result);
+        connections.notifyAllExcept(gameID,authToken,notification);
     }
 
-    private void handleResignCommand(String message, Session session) {
-        // Handle RESIGN command
+    private void handleResignCommand(String message, Session session) throws Exception {
+        Resign command = new Gson().fromJson(message, Resign.class);
+
+        int gameID = command.getGameID();
+        String authToken = command.getAuthString();
+
+        String userName = "";
+        try {
+            userName = authService.getUsername(authToken);
+        }
+        catch(Exception e){
+            Error error = new Error("Error: Bad auth token");
+            connections.sendErrorTo(session,authToken,error);
+            return;
+        }
+
+        GameData game = gameService.getGameByID(gameID);
+        if(game == null){
+            Error error = new Error("Error: Bad game ID");
+            connections.sendErrorTo(session,authToken,error);
+            return;
+        }
+
+        //If user is an observer throw error
+        if(!Objects.equals(userName, game.whiteUsername()) && !Objects.equals(userName, game.blackUsername())){
+            Error error = new Error("Not a player");
+            connections.sendErrorTo(session,authToken,error);
+            return;
+        }
+
+        if(game.game().getTeamTurn() == ChessGame.TeamColor.COMPLETE){
+            Error error = new Error("Game is already over");
+            connections.sendErrorTo(session,authToken,error);
+            return;
+        }
+        gameService.endGame(gameID, game.game());
+
+        String result = String.format("\n%s resigned", userName) + reset;
+        Notification notification = new Notification(result);
+        connections.notifyAll(gameID,notification);
     }
 }
